@@ -6,7 +6,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        <Image src="/logo.jpeg" alt="ARDH Logo" width={48} height={48} className="logo" />
+        <Image src="/logo.png" alt="ARDH Logo" width={48} height={48} className="logo" />
         <div>
           <span className="brand">ARDH</span>
           <small>Assistance for Refugees</small>

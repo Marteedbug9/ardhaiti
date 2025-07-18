@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-main">
         <div>
-          <Image src="/logo.jpeg" alt="ARDH Logo" width={80} height={80} className="footer-logo" />
+          <Image src="/icon.png" alt="ARDH Logo" width={80} height={80} className="footer-logo" />
           <div>
             <strong>ARDH</strong><br />
             Assistance for Refugees
