@@ -1,9 +1,12 @@
+import Image from 'next/image';
+import Link from 'next/link';
+
 export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-main">
         <div>
-          <img src="/logo.jpeg" alt="ARDH Logo" className="footer-logo" />
+          <Image src="/logo.jpeg" alt="ARDH Logo" width={80} height={80} className="footer-logo" />
           <div>
             <strong>ARDH</strong><br />
             Assistance for Refugees
@@ -15,10 +18,10 @@ export default function Footer() {
         <div>
           <strong>Quick Links</strong>
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-            <li><a href="/services">Services</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><Link href="/">Home</Link></li>
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/services">Services</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
           </ul>
         </div>
         <div>
