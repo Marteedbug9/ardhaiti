@@ -40,8 +40,7 @@ export default function Navbar() {
         <Link href="/register" legacyBehavior>
           <a className="nav-btn">Register</a>
         </Link>
-        <LanguageSwitcher />
-      </div>
+             </div>
     </nav>
   );
 }
