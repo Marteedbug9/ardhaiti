@@ -16,10 +16,13 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #145a7e;
+  background: #fff; /* fond blanc */
   padding: 16px 40px;
-  color: #fff;
-  box-shadow: none;
+  color: #145a7e;
+  box-shadow: 0 4px 18px #0001;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .navbar-left {
@@ -35,24 +38,27 @@ a {
   font-weight: bold;
   font-size: 1.3rem;
   margin-right: 6px;
+  color: #145a7e;
 }
 
+.navbar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+}
 .navbar-center a {
   margin: 0 18px;
-  color: #fff;
+  color: #145a7e;
   text-decoration: none;
   font-weight: 500;
   position: relative;
   transition: transform 0.2s, color 0.14s;
+  font-size: 1.07rem;
 }
-
-.navbar-center a:hover {
-  transform: scale(1.09);
-  z-index: 2;
-}
-
 .navbar-center a.active {
-  color: #fff;
+  color: #145a7e;
+  font-weight: 600;
 }
 .navbar-center a.active::after {
   content: '';
@@ -61,29 +67,88 @@ a {
   margin-top: 5px;
   width: 60%;
   height: 3px;
-  background: #fff;
+  background: #145a7e;
   border-radius: 2px;
 }
+.navbar-center a:hover {
+  transform: scale(1.09);
+  color: #1a6d99;
+}
 
-/* Navbar right pour espacements boutons */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 12px; /* Espace entre Login, Register et LanguageSwitcher */
+  gap: 12px;
 }
-
-/* Effet zoom sur boutons */
-.nav-btn, .hero-btn {
-  transition: transform 0.18s, background 0.15s, color 0.15s;
+.nav-btn {
+  background: #145a7e;
+  border-radius: 24px;
+  padding: 6px 18px;
+  margin-left: 8px;
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: transform 0.18s, background 0.16s, color 0.15s;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
 }
-.nav-btn:hover, .hero-btn:hover {
+.nav-btn:hover {
+  background: #1a6d99;
   transform: scale(1.07);
+  color: #fff;
 }
-
-/* Ajoute un petit espace entre Login et Register uniquement */
 .navbar-right .nav-btn:not(:first-child) {
   margin-left: 8px;
 }
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 900px) {
+  .navbar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 8px;
+    align-items: stretch;
+  }
+  .navbar-left {
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .navbar-center {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+    gap: 8px;
+  }
+  .navbar-center a {
+    margin: 4px 0;
+  }
+  .navbar-right {
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 8px 3vw;
+  }
+  .logo {
+    width: 38px;
+    height: 38px;
+  }
+  .brand {
+    font-size: 1.1rem;
+  }
+}
+
+/* ... Le reste de ton CSS (hero, services, impact, footer, etc.) inchangé ... */
+
+
 
 /* ...le reste de ton CSS inchangé... */
 
