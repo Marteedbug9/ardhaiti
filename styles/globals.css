@@ -34,25 +34,55 @@ a {
   font-size: 1.3rem;
   margin-right: 6px;
 }
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #145a7e;
+  padding: 16px 40px;
+  color: #fff;
+  box-shadow: none;
+}
+
 .navbar-center a {
   margin: 0 18px;
   color: #fff;
   text-decoration: none;
   font-weight: 500;
+  position: relative;
+  transition: transform 0.2s, color 0.14s;
 }
-.nav-btn {
-  background: #3578e5;
-  border-radius: 24px;
-  padding: 6px 18px;
-  margin-left: 8px;
+
+.navbar-center a:hover {
+  transform: scale(1.09);
+  z-index: 2;
+}
+
+.navbar-center a.active {
   color: #fff;
-  text-decoration: none;
 }
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.navbar-center a.active::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  margin-top: 5px;
+  width: 60%;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
 }
+
+/* Effet zoom sur boutons */
+.nav-btn, .hero-btn {
+  transition: transform 0.18s, background 0.15s, color 0.15s;
+}
+.nav-btn:hover, .hero-btn:hover {
+  transform: scale(1.07);
+}
+
+
+/* ...le reste de ton CSS inchangé... */
+
 
 /* ==== HERO ==== */
 .hero-bg {
