@@ -19,7 +19,9 @@ a {
   background: #145a7e;
   padding: 16px 40px;
   color: #fff;
+  box-shadow: none;
 }
+
 .navbar-left {
   display: flex;
   align-items: center;
@@ -33,15 +35,6 @@ a {
   font-weight: bold;
   font-size: 1.3rem;
   margin-right: 6px;
-}
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #145a7e;
-  padding: 16px 40px;
-  color: #fff;
-  box-shadow: none;
 }
 
 .navbar-center a {
@@ -72,6 +65,13 @@ a {
   border-radius: 2px;
 }
 
+/* Navbar right pour espacements boutons */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Espace entre Login, Register et LanguageSwitcher */
+}
+
 /* Effet zoom sur boutons */
 .nav-btn, .hero-btn {
   transition: transform 0.18s, background 0.15s, color 0.15s;
@@ -80,6 +80,10 @@ a {
   transform: scale(1.07);
 }
 
+/* Ajoute un petit espace entre Login et Register uniquement */
+.navbar-right .nav-btn:not(:first-child) {
+  margin-left: 8px;
+}
 
 /* ...le reste de ton CSS inchangé... */
 
@@ -195,32 +199,7 @@ a {
   font-size: 0.98rem;
 }
 
-.language-switcher {
-  display: inline-block;
-  margin-left: 8px;
-}
-.lang-btn {
-  background: #fff;
-  color: #145a7e;
-  border: 1px solid #3578e5;
-  border-radius: 12px;
-  padding: 2px 10px;
-  margin-left: 5px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.14s;
-}
-.lang-btn.active,
-.lang-btn:disabled {
-  background: #3578e5;
-  color: #fff;
-  cursor: default;
-}
-.lang-btn:not(:disabled):hover {
-  background: #e8f0fe;
-}
-
+/* ==== LANG SWITCHER ==== */
 .language-switcher {
   display: inline-block;
   margin-left: 10px;
@@ -246,7 +225,6 @@ a {
 .lang-btn:not(:disabled):hover {
   background: #e8f0fe;
 }
-
 
 /* ==== RESPONSIVE ==== */
 @media (max-width: 900px) {
