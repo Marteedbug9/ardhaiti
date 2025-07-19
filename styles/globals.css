@@ -3,8 +3,9 @@ body {
   margin: 0;
   padding: 0;
   background: #1a6d99;
-  color: #fff;
+  color: #fff; /* texte blanc par défaut */
 }
+
 
 a {
   color: inherit;
@@ -38,8 +39,21 @@ a {
   font-weight: bold;
   font-size: 1.3rem;
   margin-right: 6px;
-  color: #145a7e;
+  color: #fff; /* le logo/marque en blanc, pour rester visible sur fond bleu */
+  /* Si c’est sur navbar blanche, mets-le en bleu : #145a7e */
 }
+
+.glass {
+  background: rgba(36, 109, 161, 0.22); /* légèrement plus opaque */
+  color: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px #0002;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  /* Tu peux ajouter un border pour délimiter */
+  border: 1.2px solid rgba(255,255,255,0.13);
+}
+
 
 .navbar-center {
   display: flex;
@@ -191,6 +205,18 @@ a {
   text-align: center;
   color: #fff;
 }
+.hero-list {
+  text-align: left;
+  display: inline-block;
+  margin: 30px auto 10px auto;
+  font-size: 1.17rem;
+  color: #fff;
+  line-height: 1.7;
+  font-weight: 500;
+  border-radius: 14px;
+  padding: 16px 32px;
+  box-shadow: 0 8px 24px #0002;
+}
 .hero-content h1 { font-size: 3rem; font-weight: bold; margin-bottom: 20px;}
 .hero-content p { font-size: 1.3rem; margin-bottom: 30px;}
 .hero-buttons { margin-top: 25px; }
@@ -222,7 +248,7 @@ a {
 .services p { font-size: 1.1rem; margin-bottom: 38px; }
 .service-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; }
 .card {
-  background: #246da1;
+  background: rgba(36, 109, 161, 0.16); /* Très transparent */
   border-radius: 20px;
   box-shadow: 0 8px 32px #0002;
   width: 300px;
@@ -231,7 +257,11 @@ a {
   color: #fff;
   text-align: left;
   border: 1.5px solid #3b83c5;
+  /* Effet "loupe" / glassmorphism */
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
 }
+
 .card-icon { font-size: 2.3rem; margin-bottom: 14px; }
 .card h3 { margin: 0 0 9px 0; font-size: 1.25rem; font-weight: bold;}
 .card p { margin: 0; font-size: 1rem;}
@@ -321,6 +351,7 @@ a {
 .lang-btn:not(:disabled):hover {
   background: #e8f0fe;
 }
+
 
 /* ==== RESPONSIVE ==== */
 @media (max-width: 900px) {

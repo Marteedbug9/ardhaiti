@@ -1,16 +1,11 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import LanguageSwitcher from '../components/LanguageSwitcher';
 import ImageSlider from '../components/ImageSlider';
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      {/* Language selector under navbar */}
-      <div style={{ marginTop: "16px", textAlign: "right", marginRight: "40px" }}>
-        <LanguageSwitcher />
-      </div>
 
       <main className="hero-bg">
         <div className="hero-content">
@@ -18,22 +13,18 @@ export default function Home() {
           <p>
             We are dedicated to supporting Haitian refugees and displaced individuals by providing:
           </p>
-          <ImageSlider /> 
-          <ul style={{
-            textAlign: "left",
-            display: "inline-block",
-            margin: "30px auto 10px auto",
-            fontSize: "1.17rem",
-            color: "#fff",
-            lineHeight: 1.7,
-            fontWeight: 500,
-            background: "rgba(36, 109, 161, 0.18)",
-            borderRadius: "14px",
-            padding: "16px 32px",
-            boxShadow: "0 8px 24px #0002"
-          }}>
-           
+
+          <ImageSlider />
+
+          <ul className="hero-list glass">
+            <li>✅ Legal Assistance – Guidance through immigration processes</li>
+            <li>✅ Rent Support – Helping secure safe, stable housing</li>
+            <li>✅ Food Assistance – Food packages & local food banks</li>
+            <li>✅ Education & English Classes – Empowering integration and success</li>
+            <li>✅ Job Placement – Connecting clients with employment opportunities</li>
+            <li>✅ Cultural Orientation – Navigating life in the U.S. with confidence</li>
           </ul>
+
           <div style={{ marginTop: 24 }}>
             <i style={{ fontWeight: 600, fontSize: "1.07rem", color: "#fff" }}>
               Our goal is to foster independence, dignity, and hope for every Haitian refugee we serve.
@@ -49,7 +40,7 @@ export default function Home() {
       <section className="services">
         <h2>Details of Our Services</h2>
         <div className="service-cards">
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">⚖️</div>
             <h3>Legal Assistance</h3>
             <ul>
@@ -59,7 +50,7 @@ export default function Home() {
               <li>Immigration paperwork & documentation</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">🏠</div>
             <h3>Rent Support</h3>
             <ul>
@@ -69,7 +60,7 @@ export default function Home() {
               <li>Support to prevent homelessness</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">🥗</div>
             <h3>Food Assistance</h3>
             <ul>
@@ -79,7 +70,7 @@ export default function Home() {
               <li>Nutrition workshops</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">📚</div>
             <h3>Education & English Classes</h3>
             <ul>
@@ -89,7 +80,7 @@ export default function Home() {
               <li>Digital literacy workshops</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">💼</div>
             <h3>Job Placement Services</h3>
             <ul>
@@ -99,7 +90,7 @@ export default function Home() {
               <li>Partnerships with local businesses</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">🌍</div>
             <h3>Cultural Orientation</h3>
             <ul>
@@ -109,7 +100,7 @@ export default function Home() {
               <li>Support for navigating daily life</li>
             </ul>
           </div>
-          <div className="card">
+          <div className="card glass">
             <div className="card-icon">✈️</div>
             <h3>Support for Returning to Haiti</h3>
             <ul>
@@ -128,17 +119,17 @@ export default function Home() {
           Our core values guide our mission to assist Haitian refugees and make a lasting difference in their lives.
         </p>
         <div className="impact-cards">
-          <div className="impact-card">
+          <div className="impact-card glass">
             <div className="impact-icon">👥</div>
             <h4>Putting People First</h4>
             <p>We place the needs of refugees at the heart of everything, providing personalized and compassionate support.</p>
           </div>
-          <div className="impact-card">
+          <div className="impact-card glass">
             <div className="impact-icon">💙</div>
             <h4>Investing in Community</h4>
             <p>We invest in local actions that create lasting impact and strengthen community bonds.</p>
           </div>
-          <div className="impact-card">
+          <div className="impact-card glass">
             <div className="impact-icon">💲</div>
             <h4>Experience You Can Trust</h4>
             <p>Our commitment to transparency and excellence lets us earn the trust of our community.</p>
