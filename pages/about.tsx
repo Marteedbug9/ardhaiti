@@ -1,6 +1,5 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import Image from 'next/image'; // AJOUT
 
 export default function About() {
   return (
@@ -16,22 +15,6 @@ export default function About() {
           <h1 style={{ fontSize: "2.15rem", fontWeight: 700, marginBottom: 12 }}>
             About ARDH
           </h1>
-
-          <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: 30 }}>
-            <Image
-              src="/264C2DD2-2343-4650-8BF7-14313129F1DD.JPEG"
-              alt="ARDH Team"
-              width={320}
-              height={320}
-              style={{
-                borderRadius: "16px",
-                objectFit: "cover",
-                maxWidth: "90vw",
-                boxShadow: "0 2px 24px #0005"
-              }}
-            />
-          </div>
-
           <p style={{ fontSize: "1.15rem", marginBottom: 30 }}>
             As a founding member of <b>ARDH (Assistance for Refugees and Displaced Haitians)</b>, I am dedicated to supporting refugees and displaced persons throughout their journey of integration, training, and rebuilding their lives.
             <br /><br />
