@@ -17,12 +17,12 @@ export default function Home() {
           <ImageSlider />
 
           <ul className="hero-list glass">
-            <li>✅ Legal Assistance – Guidance through immigration processes</li>
-            <li>✅ Rent Support – Helping secure safe, stable housing</li>
-            <li>✅ Food Assistance – Food packages & local food banks</li>
-            <li>✅ Education & English Classes – Empowering integration and success</li>
-            <li>✅ Job Placement – Connecting clients with employment opportunities</li>
-            <li>✅ Cultural Orientation – Navigating life in the U.S. with confidence</li>
+            <li>Legal Assistance – Guidance through immigration processes</li>
+            <li> Rent Support – Helping secure safe, stable housing</li>
+            <li>Food Assistance – Food packages & local food banks</li>
+            <li> Education & English Classes – Empowering integration and success</li>
+            <li> Job Placement – Connecting clients with employment opportunities</li>
+            <li> Cultural Orientation – Navigating life in the U.S. with confidence</li>
           </ul>
 
           <div style={{ marginTop: 24 }}>
