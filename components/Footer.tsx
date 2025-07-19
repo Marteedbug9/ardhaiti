@@ -38,7 +38,7 @@ export default function Footer() {
         <div>
           <strong>Contact</strong>
           <ul>
-            <li>+1 (555) 123-4567</li>
+            <li>+1 (614) 930-2727</li>
             <li>contact@ardh.com</li>
             <li>4285 Morse Rd,1st Floor,Columbus,OH 43230</li>
           </ul>

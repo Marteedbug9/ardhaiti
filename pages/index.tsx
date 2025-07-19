@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import ImageSlider from '../components/ImageSlider';
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
           <p>
             We are dedicated to supporting Haitian refugees and displaced individuals by providing:
           </p>
+          <ImageSlider /> 
           <ul style={{
             textAlign: "left",
             display: "inline-block",
