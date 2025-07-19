@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Image from 'next/image';
 
 export default function About() {
   return (
@@ -12,7 +13,22 @@ export default function About() {
           padding: "48px 18px 36px 18px",
           color: "#fff"
         }}>
-          <h1 style={{ fontSize: "2.15rem", fontWeight: 700, marginBottom: 12 }}>
+          {/* LOGO */}
+          <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: 30 }}>
+            <Image
+              src="/logo.png"
+              alt="ARDH Logo"
+              width={96}
+              height={96}
+              style={{
+                borderRadius: "18px",
+                background: "#fff",
+                objectFit: "contain",
+                boxShadow: "0 2px 18px #0003"
+              }}
+            />
+          </div>
+          <h1 style={{ fontSize: "2.15rem", fontWeight: 700, marginBottom: 18, textAlign: "center" }}>
             About ARDH
           </h1>
           <p style={{ fontSize: "1.15rem", marginBottom: 30 }}>
