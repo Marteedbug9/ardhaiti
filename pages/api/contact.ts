@@ -60,15 +60,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     return res.status(200).json({ success: true });
-  } catch (err: any) { 
+  } catch (err: unknown) { 
     // Affiche un maximum d’informations sur l’erreur
-    if (err.response) {
-      // Si c’est un problème Nodemailer
-      console.error("EMAIL ERROR:", err.response);
-    }
-    if (err.code) {
-      // Si c’est une erreur de connexion (SMTP ou SQL)
-      console.error("CODE ERROR:", err.code, err.message);
+    if (err && typeof err === "object") {
+      if ("response" in err) {
+        // Si c’est un problème Nodemailer
+        console.error("EMAIL ERROR:", (err as any).response);
+      }
+      if ("code" in err) {
+        // Si c’est une erreur de connexion (SMTP ou SQL)
+        console.error("CODE ERROR:", (err as any).code, (err as any).message);
+      }
     }
     // Log complet
     console.error("FULL ERROR:", err);
