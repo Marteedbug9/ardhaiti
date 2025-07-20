@@ -23,7 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
       return res.status(200).json({ requests: rows });
     } catch (e: unknown) {
-      // Gestion propre de l’erreur sans 'any'
       if (e instanceof Error) {
         console.error("Error fetching help requests:", e.message);
       } else {
@@ -32,10 +31,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: "Could not fetch help requests." });
     }
   }
-  
-  // À COMPLÉTER : Autres méthodes (POST, PUT, etc.)
-  // Exemple pour POST (à implémenter plus tard):
-  // if (req.method === "POST") { ... }
+
+  // UTILISATEUR : Soumission d'une demande
+  if (req.method === "POST") {
+    const { userId, services } = req.body;
+    if (!userId || !services || !Array.isArray(services) || services.length === 0) {
+      return res.status(400).json({ error: "Missing userId or services." });
+    }
+
+    try {
+      for (const service of services) {
+        await pool.query(
+          `INSERT INTO help_requests (user_id, service) VALUES ($1, $2)`,
+          [userId, service]
+        );
+      }
+      return res.status(200).json({ ok: true });
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        console.error("Error inserting help request:", e.message);
+      } else {
+        console.error("Unknown error inserting help request:", e);
+      }
+      return res.status(500).json({ error: "Failed to submit request." });
+    }
+  }
 
   // Méthode non supportée
   return res.status(405).json({ error: "Method not allowed." });

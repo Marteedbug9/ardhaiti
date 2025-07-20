@@ -56,7 +56,7 @@ export default function HelpRequestPage() {
     try {
       // Tu dois transmettre aussi l’userId côté backend
       const userId = localStorage.getItem("userId");
-      await fetch("/api/help-request", {
+      await fetch("/api/help/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ services: selected, userId }),
