@@ -60,9 +60,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
 
     return res.status(200).json({ success: true });
-  } catch (err) {
-    // Tu peux logger plus d’infos ici si besoin :
-    console.error('Contact error:', err);
+  } catch (err: any) { 
+    // Affiche un maximum d’informations sur l’erreur
+    if (err.response) {
+      // Si c’est un problème Nodemailer
+      console.error("EMAIL ERROR:", err.response);
+    }
+    if (err.code) {
+      // Si c’est une erreur de connexion (SMTP ou SQL)
+      console.error("CODE ERROR:", err.code, err.message);
+    }
+    // Log complet
+    console.error("FULL ERROR:", err);
+
     return res.status(500).json({ error: "Server error" });
   }
 }
