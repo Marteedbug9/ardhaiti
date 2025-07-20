@@ -20,6 +20,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setSubmitted(false);
+
     if (!form.identifier || !form.password) {
       setError("Please fill in all fields.");
       return;
@@ -32,19 +33,21 @@ export default function Login() {
       });
       const data = await res.json();
 
-      if (res.ok && data.ok) {
+      if (res.ok && (data.ok || data.token || data.userId)) {
         setSubmitted(true);
-        // Stocke userId et (si dispo) role pour vérification accès admin/user
+
+        // Stocke userId et role si disponibles
         if (data.userId) localStorage.setItem("userId", data.userId);
         if (data.role) localStorage.setItem("role", data.role);
-        // Redirige selon le rôle
+
+        // Redirige selon le rôle : admin => admin-help-requests, sinon help-request
         setTimeout(() => {
           if (data.role === "admin") {
             router.push("/admin-help-requests");
           } else {
-            router.push("/");
+            router.push("/help-request");
           }
-        }, 1200); // Redirige après 1.2s pour laisser voir le message
+        }, 1200); // 1.2s de délai pour laisser voir le message
       } else {
         setError(data.error || "Login failed. Check your credentials.");
       }
@@ -59,13 +62,16 @@ export default function Login() {
       <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
         <div style={{ maxWidth: 420, margin: "0 auto", padding: "48px 8px 40px 8px", color: "#145a7e" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 18 }}>Login</h1>
-          <form onSubmit={handleSubmit} style={{
-            background: "#fff",
-            borderRadius: 16,
-            boxShadow: "0 4px 18px #145a7e16",
-            padding: "24px 22px",
-            marginBottom: 24
-          }}>
+          <form
+            onSubmit={handleSubmit}
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              boxShadow: "0 4px 18px #145a7e16",
+              padding: "24px 22px",
+              marginBottom: 24,
+            }}
+          >
             <label htmlFor="identifier" style={{ fontWeight: 600, display: "block" }}>
               Email or Phone Number<span style={{ color: "#e64b1d" }}>*</span>
             </label>
@@ -83,7 +89,7 @@ export default function Login() {
                 borderRadius: 8,
                 border: "1px solid #c1d4ea",
                 marginBottom: 16,
-                marginTop: 3
+                marginTop: 3,
               }}
             />
 
@@ -104,11 +110,12 @@ export default function Login() {
                 borderRadius: 8,
                 border: "1px solid #c1d4ea",
                 marginBottom: 20,
-                marginTop: 3
+                marginTop: 3,
               }}
             />
 
-            <button type="submit"
+            <button
+              type="submit"
               style={{
                 width: "100%",
                 background: "#145a7e",
@@ -120,8 +127,9 @@ export default function Login() {
                 fontSize: "1.1rem",
                 marginTop: 6,
                 cursor: "pointer",
-                transition: "background 0.15s"
-              }}>
+                transition: "background 0.15s",
+              }}
+            >
               Login
             </button>
 

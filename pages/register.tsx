@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-// Icône SVG œil plus compacte
+// Icône SVG œil compacte
 const Eye = ({ open, onClick }: { open: boolean; onClick: () => void }) => (
   <span onClick={onClick} style={{ cursor: "pointer", marginLeft: 2, userSelect: "none" }}>
     {open ? (
@@ -49,6 +50,7 @@ function isOver18(year: string) {
 }
 
 export default function Register() {
+  const router = useRouter();
   const [form, setForm] = useState<RegisterForm>({
     firstName: "",
     lastName: "",
@@ -105,15 +107,33 @@ export default function Register() {
       return;
     }
     try {
-      // On envoie seulement le password, pas le confirmPassword
       const { confirmPassword, ...toSend } = form;
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toSend),
       });
-      if (res.ok) setSubmitted(true);
-      else setError("An error occurred. Please try again.");
+      if (res.ok) {
+        setSubmitted(true);
+        setForm({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          address: "",
+          city: "",
+          state: "",
+          zipcode: "",
+          yearOfBirth: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setTimeout(() => {
+          router.push("/");
+        }, 1200); // 1.2s pour laisser voir le message
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     } catch {
       setError("Network error. Please try again.");
     }
@@ -139,7 +159,6 @@ export default function Register() {
                   style={{ width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #c1d4ea", marginBottom: 16, marginTop: 3 }} />
               </div>
             </div>
-            {/* ... email, phone, yearOfBirth, address, city, state, zipcode ... */}
             <label htmlFor="email" style={{ fontWeight: 600, display: "block" }}>Email Address<span style={{ color: "#e64b1d" }}>*</span></label>
             <input required type="email" name="email" id="email" value={form.email} onChange={handleChange}
               style={{ width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #c1d4ea", marginBottom: 16, marginTop: 3 }} />
