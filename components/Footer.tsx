@@ -39,7 +39,7 @@ export default function Footer() {
           <strong>Contact</strong>
           <ul>
             <li>+1 (614) 930-2727</li>
-            <li>contact@ardh.com</li>
+            <li>contact@ardhaiti.com</li>
             <li>4285 Morse Rd,1st Floor,Columbus,OH 43230</li>
           </ul>
         </div>
