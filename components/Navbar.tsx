@@ -34,21 +34,13 @@ export default function Navbar() {
         </Link>
       </div>
       <div className="navbar-right">
-  {/* Lien vers la page de connexion */}
-  <Link href="/login" legacyBehavior>
-    {/* 
-      <a className="nav-btn">Login</a> 
-      Ce lien est actuellement commenté et donc n’apparaîtra pas dans la navbar.
-      Pour activer le bouton "Login", décommente cette ligne.
-    */}
-    {/* <a className="nav-btn">Login</a> */}
-  </Link>
-  {/* Lien vers la page d'inscription */}
-  <Link href="/register" legacyBehavior>
-    {/* <a className="nav-btn">Register</a>*/}
-  </Link>
-</div>
-
+        <Link href="/login" legacyBehavior>
+         <a className="nav-btn">Login</a>
+        </Link>
+        <Link href="/register" legacyBehavior>
+          <a className="nav-btn">Register</a>
+        </Link>
+             </div>
     </nav>
   );
 }
