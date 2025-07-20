@@ -26,7 +26,7 @@ export default function Navbar() {
         <Link href="/about" legacyBehavior>
           <a className={isActive("/about") ? "active" : ""}>About</a>
         </Link>
-        <Link href="/services" legacyBehavior>
+        <Link href="/#services" scroll={false} legacyBehavior>
           <a className={isActive("/services") ? "active" : ""}>Services</a>
         </Link>
         <Link href="/contact" legacyBehavior>

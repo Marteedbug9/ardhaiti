@@ -37,7 +37,7 @@ export default function Home() {
         </div>
       </main>
 
-      <section className="services">
+      <section id="services" className="services">
         <h2>Details of Our Services</h2>
         <div className="service-cards">
           <div className="card glass">
