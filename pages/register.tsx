@@ -2,6 +2,23 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+// Icônes SVG d’œil (simple)
+const Eye = ({ open, onClick }: { open: boolean; onClick: () => void }) => (
+  <span onClick={onClick} style={{ cursor: "pointer", marginLeft: 6, userSelect: "none" }}>
+    {open ? (
+      <svg width="21" height="21" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
+        <path stroke="#777" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+        <circle cx="12" cy="12" r="3.5" stroke="#777" strokeWidth="2"/>
+      </svg>
+    ) : (
+      <svg width="21" height="21" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
+        <path stroke="#777" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+        <line x1="4" y1="20" x2="20" y2="4" stroke="#777" strokeWidth="2"/>
+      </svg>
+    )}
+  </span>
+);
+
 interface RegisterForm {
   firstName: string;
   lastName: string;
@@ -12,6 +29,8 @@ interface RegisterForm {
   state: string;
   zipcode: string;
   yearOfBirth: string;
+  password: string;
+  confirmPassword: string;
 }
 
 function isValidEmail(email: string) {
@@ -40,7 +59,11 @@ export default function Register() {
     state: "",
     zipcode: "",
     yearOfBirth: "",
+    password: "",
+    confirmPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
@@ -60,12 +83,16 @@ export default function Register() {
       !form.city ||
       !form.state ||
       !form.zipcode ||
-      !form.yearOfBirth
+      !form.yearOfBirth ||
+      !form.password ||
+      !form.confirmPassword
     ) return "All fields are required.";
     if (!isValidEmail(form.email)) return "Please enter a valid email address.";
     if (!isNumeric(form.phone)) return "Phone must be a number only.";
     if (!isNumeric(form.yearOfBirth)) return "Year of birth must be a number.";
     if (!isOver18(form.yearOfBirth)) return "You must be at least 18 years old to register.";
+    if (form.password.length < 6) return "Password must be at least 6 characters.";
+    if (form.password !== form.confirmPassword) return "Passwords do not match.";
     return "";
   };
 
@@ -78,10 +105,12 @@ export default function Register() {
       return;
     }
     try {
+      // On envoie seulement le password, pas le confirmPassword
+      const { confirmPassword, ...toSend } = form;
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(toSend),
       });
       if (res.ok) setSubmitted(true);
       else setError("An error occurred. Please try again.");
@@ -97,6 +126,7 @@ export default function Register() {
         <div style={{ maxWidth: 560, margin: "0 auto", padding: "48px 8px 40px 8px", color: "#145a7e" }}>
           <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 18 }}>Create an Account</h1>
           <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 16, boxShadow: "0 4px 18px #145a7e16", padding: "24px 22px", marginBottom: 24 }}>
+            {/* ... Tous les autres champs inchangés ... */}
             <div style={{ display: "flex", gap: 12 }}>
               <div style={{ flex: 1 }}>
                 <label htmlFor="firstName" style={{ fontWeight: 600, display: "block" }}>First Name<span style={{ color: "#e64b1d" }}>*</span></label>
@@ -109,6 +139,7 @@ export default function Register() {
                   style={{ width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #c1d4ea", marginBottom: 16, marginTop: 3 }} />
               </div>
             </div>
+            {/* ... email, phone, yearOfBirth, address, city, state, zipcode ... */}
             <label htmlFor="email" style={{ fontWeight: 600, display: "block" }}>Email Address<span style={{ color: "#e64b1d" }}>*</span></label>
             <input required type="email" name="email" id="email" value={form.email} onChange={handleChange}
               style={{ width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #c1d4ea", marginBottom: 16, marginTop: 3 }} />
@@ -142,6 +173,52 @@ export default function Register() {
                 <input required type="text" name="zipcode" id="zipcode" value={form.zipcode} onChange={handleChange}
                   style={{ width: "100%", padding: "8px", borderRadius: 8, border: "1px solid #c1d4ea", marginBottom: 16, marginTop: 3 }} />
               </div>
+            </div>
+
+            {/* Mot de passe */}
+            <label htmlFor="password" style={{ fontWeight: 600, display: "block" }}>Password<span style={{ color: "#e64b1d" }}>*</span></label>
+            <div style={{ position: "relative", marginBottom: 16 }}>
+              <input
+                required
+                type={showPassword ? "text" : "password"}
+                name="password"
+                id="password"
+                value={form.password}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "8px 36px 8px 8px",
+                  borderRadius: 8,
+                  border: "1px solid #c1d4ea",
+                  marginTop: 3
+                }}
+              />
+              <span style={{ position: "absolute", top: 11, right: 8 }}>
+                <Eye open={showPassword} onClick={() => setShowPassword((v) => !v)} />
+              </span>
+            </div>
+
+            {/* Confirmation mot de passe */}
+            <label htmlFor="confirmPassword" style={{ fontWeight: 600, display: "block" }}>Confirm Password<span style={{ color: "#e64b1d" }}>*</span></label>
+            <div style={{ position: "relative", marginBottom: 16 }}>
+              <input
+                required
+                type={showConfirm ? "text" : "password"}
+                name="confirmPassword"
+                id="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                style={{
+                  width: "100%",
+                  padding: "8px 36px 8px 8px",
+                  borderRadius: 8,
+                  border: "1px solid #c1d4ea",
+                  marginTop: 3
+                }}
+              />
+              <span style={{ position: "absolute", top: 11, right: 8 }}>
+                <Eye open={showConfirm} onClick={() => setShowConfirm((v) => !v)} />
+              </span>
             </div>
 
             <button type="submit"
