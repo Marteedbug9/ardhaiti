@@ -8,7 +8,7 @@ const STATUS_OPTIONS = ["Pending", "In progress", "Completed", "Rejected"];
 interface HelpRequest {
   id: number;
   user_id: number;
-  user_name: string; // Peut être null si pas de nom dans la base
+  user_name: string | null; // Peut être null si pas de nom
   service: string;
   status: string;
   createdAt: string;
@@ -42,6 +42,9 @@ export default function AdminHelpRequestsPage() {
         const data = await res.json();
         setRequests(data.requests);
       } catch (err) {
+        // Correction : log l’erreur pour éviter warning ESLint
+        // eslint-disable-next-line no-console
+        console.error("Erreur de chargement des requêtes :", err);
         setNotice("Could not load requests.");
       } finally {
         setLoading(false);
@@ -67,7 +70,10 @@ export default function AdminHelpRequestsPage() {
       );
       setNotice("Status updated!");
       setTimeout(() => setNotice(""), 2000);
-    } catch {
+    } catch (err) {
+      // Correction : log l’erreur
+      // eslint-disable-next-line no-console
+      console.error("Erreur update statut :", err);
       setNotice("Could not update status.");
     }
   };
