@@ -51,7 +51,7 @@ export default function About() {
               <b>Phone:</b> <a href="tel:+16149302727" style={{ color: "#fff", textDecoration: "underline" }}>+1 (614) 930-2727</a>
             </li>
             <li>
-              <b>Email:</b> <a href="mailto:contact@ardh.com" style={{ color: "#fff", textDecoration: "underline" }}>contact@ardh.com</a>
+              <b>Email:</b> <a href="mailto:contact@ardhaiti.com" style={{ color: "#fff", textDecoration: "underline" }}>contact@ardh.com</a>
             </li>
             <li>
               <b>Location:</b> 4285 Morse Rd, 1st Floor, Columbus, OH 43230
