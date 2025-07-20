@@ -2,16 +2,16 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-// Icônes SVG d’œil (simple)
+// Icône SVG œil plus compacte
 const Eye = ({ open, onClick }: { open: boolean; onClick: () => void }) => (
-  <span onClick={onClick} style={{ cursor: "pointer", marginLeft: 6, userSelect: "none" }}>
+  <span onClick={onClick} style={{ cursor: "pointer", marginLeft: 2, userSelect: "none" }}>
     {open ? (
-      <svg width="21" height="21" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
+      <svg width="18" height="18" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
         <path stroke="#777" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
         <circle cx="12" cy="12" r="3.5" stroke="#777" strokeWidth="2"/>
       </svg>
     ) : (
-      <svg width="21" height="21" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
+      <svg width="18" height="18" style={{ verticalAlign: "middle" }} fill="none" viewBox="0 0 24 24">
         <path stroke="#777" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
         <line x1="4" y1="20" x2="20" y2="4" stroke="#777" strokeWidth="2"/>
       </svg>
@@ -175,7 +175,7 @@ export default function Register() {
               </div>
             </div>
 
-            {/* Mot de passe */}
+            {/* Mot de passe compact */}
             <label htmlFor="password" style={{ fontWeight: 600, display: "block" }}>Password<span style={{ color: "#e64b1d" }}>*</span></label>
             <div style={{ position: "relative", marginBottom: 16 }}>
               <input
@@ -187,18 +187,18 @@ export default function Register() {
                 onChange={handleChange}
                 style={{
                   width: "100%",
-                  padding: "8px 36px 8px 8px",
+                  padding: "8px 26px 8px 8px",
                   borderRadius: 8,
                   border: "1px solid #c1d4ea",
                   marginTop: 3
                 }}
               />
-              <span style={{ position: "absolute", top: 11, right: 8 }}>
+              <span style={{ position: "absolute", top: 10, right: 7 }}>
                 <Eye open={showPassword} onClick={() => setShowPassword((v) => !v)} />
               </span>
             </div>
 
-            {/* Confirmation mot de passe */}
+            {/* Confirmation mot de passe compact */}
             <label htmlFor="confirmPassword" style={{ fontWeight: 600, display: "block" }}>Confirm Password<span style={{ color: "#e64b1d" }}>*</span></label>
             <div style={{ position: "relative", marginBottom: 16 }}>
               <input
@@ -210,13 +210,13 @@ export default function Register() {
                 onChange={handleChange}
                 style={{
                   width: "100%",
-                  padding: "8px 36px 8px 8px",
+                  padding: "8px 26px 8px 8px",
                   borderRadius: 8,
                   border: "1px solid #c1d4ea",
                   marginTop: 3
                 }}
               />
-              <span style={{ position: "absolute", top: 11, right: 8 }}>
+              <span style={{ position: "absolute", top: 10, right: 7 }}>
                 <Eye open={showConfirm} onClick={() => setShowConfirm((v) => !v)} />
               </span>
             </div>
