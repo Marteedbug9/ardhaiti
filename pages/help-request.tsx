@@ -88,7 +88,7 @@ export default function HelpRequestPage() {
       <Navbar />
       <main style={{ background: "#0a293dff", minHeight: "100vh" }}>
         <div style={{ maxWidth: 540, margin: "0 auto", padding: "44px 12px" }}>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, marginBottom: 10 }}>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 700, marginBottom: 10, color: "#145a7e" }}>
             Request Support
           </h1>
           <form onSubmit={handleSubmit} style={{
