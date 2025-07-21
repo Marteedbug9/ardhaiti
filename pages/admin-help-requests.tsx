@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -7,6 +7,7 @@ const TABS = ["Client", "Request", "Register"];
 
 // ---- MODELES TYPES ----
 interface Client {
+  [key: string]: unknown; // <-- index signature ajouté
   id: number;
   sexe: string;
   status: string;
@@ -25,6 +26,7 @@ interface Client {
 }
 
 interface HelpRequest {
+  [key: string]: unknown;
   id: number;
   user_id: number;
   user_name: string | null;
@@ -38,6 +40,7 @@ interface HelpRequest {
 }
 
 interface Register {
+  [key: string]: unknown;
   id: number;
   sexe: string;
   status: string;
@@ -68,7 +71,7 @@ const DUMMY_CLIENTS: Client[] = [
 
 const DUMMY_REQUESTS: HelpRequest[] = [
   {
-    id: 5, user_id: 1, user_name: "Jean Pierre", sexe: "M", state: "Ouest", city: "PaP", 
+    id: 5, user_id: 1, user_name: "Jean Pierre", sexe: "M", state: "Ouest", city: "PaP",
     service: "Legal", status: "Pending", createdAt: "2024-07-21", updatedAt: "2024-07-22"
   },
   // ...
@@ -87,29 +90,27 @@ const DUMMY_REGISTERS: Register[] = [
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState("Client");
   // Données réelles à charger via API si besoin !
-  const [clients, setClients] = useState<Client[]>(DUMMY_CLIENTS);
-  const [requests, setRequests] = useState<HelpRequest[]>(DUMMY_REQUESTS);
-  const [registers, setRegisters] = useState<Register[]>(DUMMY_REGISTERS);
+  const [clients] = useState<Client[]>(DUMMY_CLIENTS);
+  const [requests] = useState<HelpRequest[]>(DUMMY_REQUESTS);
+  const [registers] = useState<Register[]>(DUMMY_REGISTERS);
 
   // Recherche/tri par input
   const [search, setSearch] = useState("");
 
   // ---- FILTRES ----
-  function filterData<T extends Record<string, any>>(list: T[]): T[] {
-     if (!search) return list;
+  function filterData<T extends Record<string, unknown>>(list: T[], search: string): T[] {
+    if (!search) return list;
     const s = search.toLowerCase();
-     return list.filter((item) =>
-    Object.values(item).some(
-      (val) =>
-        typeof val === "string" && val.toLowerCase().includes(s)
+    return list.filter(item =>
+      Object.values(item).some(
+        val => typeof val === "string" && val.toLowerCase().includes(s)
       )
     );
   }
 
-
   // ----- TABLEAU CLIENT -----
   function renderClientTable() {
-    const list = filterData(clients);
+    const list = filterData(clients, search);
     return (
       <table style={{ width: "100%" }}>
         <thead>
@@ -124,10 +125,10 @@ export default function AdminDashboardPage() {
             <tr><td colSpan={12} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
           ) : (
             list.map(c => (
-              <tr key={c.id}>
-                <td>{c.sexe}</td><td>{c.status}</td><td>{c.firstName}</td><td>{c.lastName}</td><td>{c.email}</td>
-                <td>{c.phone}</td><td>{c.address}</td><td>{c.city}</td><td>{c.state}</td><td>{c.zipcode}</td>
-                <td>{`${c.yearOfBirth}/${c.monthOfBirth}/${c.dayOfBirth}`}</td>
+              <tr key={String(c.id)}>
+                <td>{c.sexe as string}</td><td>{c.status as string}</td><td>{c.firstName as string}</td><td>{c.lastName as string}</td><td>{c.email as string}</td>
+                <td>{c.phone as string}</td><td>{c.address as string}</td><td>{c.city as string}</td><td>{c.state as string}</td><td>{c.zipcode as string}</td>
+                <td>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
                 <td>{c.confirm ? "✔️" : "❌"}</td>
               </tr>
             ))
@@ -139,7 +140,7 @@ export default function AdminDashboardPage() {
 
   // ----- TABLEAU REQUEST -----
   function renderRequestTable() {
-    const list = filterData(requests);
+    const list = filterData(requests, search);
     return (
       <table style={{ width: "100%" }}>
         <thead>
@@ -153,15 +154,15 @@ export default function AdminDashboardPage() {
             <tr><td colSpan={8} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
           ) : (
             list.map(r => (
-              <tr key={r.id}>
-                <td>{r.user_name || r.user_id}</td>
-                <td>{r.sexe}</td>
-                <td>{r.state}</td>
-                <td>{r.city}</td>
-                <td>{r.service}</td>
-                <td>{r.status}</td>
-                <td>{r.createdAt}</td>
-                <td>{r.updatedAt}</td>
+              <tr key={String(r.id)}>
+                <td>{(r.user_name as string) || (r.user_id as number)}</td>
+                <td>{r.sexe as string}</td>
+                <td>{r.state as string}</td>
+                <td>{r.city as string}</td>
+                <td>{r.service as string}</td>
+                <td>{r.status as string}</td>
+                <td>{r.createdAt as string}</td>
+                <td>{r.updatedAt as string}</td>
               </tr>
             ))
           )}
@@ -172,7 +173,7 @@ export default function AdminDashboardPage() {
 
   // ----- TABLEAU REGISTER -----
   function renderRegisterTable() {
-    const list = filterData(registers);
+    const list = filterData(registers, search);
     return (
       <table style={{ width: "100%" }}>
         <thead>
@@ -187,12 +188,12 @@ export default function AdminDashboardPage() {
             <tr><td colSpan={13} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
           ) : (
             list.map(r => (
-              <tr key={r.id}>
-                <td>{r.sexe}</td><td>{r.status}</td><td>{r.firstName}</td><td>{r.lastName}</td><td>{r.email}</td>
-                <td>{r.phone}</td><td>{r.address}</td><td>{r.city}</td><td>{r.state}</td><td>{r.zipcode}</td>
-                <td>{`${r.yearOfBirth}/${r.monthOfBirth}/${r.dayOfBirth}`}</td>
+              <tr key={String(r.id)}>
+                <td>{r.sexe as string}</td><td>{r.status as string}</td><td>{r.firstName as string}</td><td>{r.lastName as string}</td><td>{r.email as string}</td>
+                <td>{r.phone as string}</td><td>{r.address as string}</td><td>{r.city as string}</td><td>{r.state as string}</td><td>{r.zipcode as string}</td>
+                <td>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
                 <td>{r.confirm ? "✔️" : "❌"}</td>
-                <td>{r.document}</td>
+                <td>{r.document as string}</td>
               </tr>
             ))
           )}
