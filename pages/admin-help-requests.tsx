@@ -1,138 +1,246 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const STATUS_OPTIONS = ["Pending", "In progress", "Completed", "Rejected"];
+// Onglets du dashboard admin
+const TABS = ["Client", "Request", "Register"];
+
+// ---- MODELES TYPES ----
+interface Client {
+  id: number;
+  sexe: string;
+  status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  yearOfBirth: string;
+  monthOfBirth: string;
+  dayOfBirth: string;
+  confirm: boolean;
+}
 
 interface HelpRequest {
   id: number;
   user_id: number;
-  user_name: string | null; // Peut être null si pas de nom
+  user_name: string | null;
+  sexe: string;
+  state: string;
+  city: string;
   service: string;
   status: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export default function AdminHelpRequestsPage() {
-  const [requests, setRequests] = useState<HelpRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [notice, setNotice] = useState("");
-  const router = useRouter();
+interface Register {
+  id: number;
+  sexe: string;
+  status: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipcode: string;
+  yearOfBirth: string;
+  monthOfBirth: string;
+  dayOfBirth: string;
+  confirm: boolean;
+  document: string;
+}
 
-  // --- Redirige si pas admin connecté ---
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const role = localStorage.getItem("role");
-      if (role !== "admin") {
-        router.push("/login");
-      }
-    }
-  }, [router]);
+// ---- DUMMY DATA ----
+const DUMMY_CLIENTS: Client[] = [
+  {
+    id: 1, sexe: "M", status: "Active", firstName: "Jean", lastName: "Pierre",
+    email: "jp@gmail.com", phone: "123456", address: "Rue X", city: "Port-au-Prince", state: "Ouest", zipcode: "6110",
+    yearOfBirth: "1992", monthOfBirth: "04", dayOfBirth: "22", confirm: true
+  },
+  // Ajoute plus de clients ici...
+];
 
-  // --- Charge la liste des demandes ---
-  useEffect(() => {
-    async function fetchRequests() {
-      setLoading(true);
-      setNotice("");
-      try {
-        const res = await fetch("/api/help-request?all=1");
-        if (!res.ok) throw new Error("API error");
-        const data = await res.json();
-        setRequests(data.requests);
-      } catch (err) {
-        // Correction : log l’erreur pour éviter warning ESLint
-        // eslint-disable-next-line no-console
-        console.error("Erreur de chargement des requêtes :", err);
-        setNotice("Could not load requests.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchRequests();
-  }, []);
+const DUMMY_REQUESTS: HelpRequest[] = [
+  {
+    id: 5, user_id: 1, user_name: "Jean Pierre", sexe: "M", state: "Ouest", city: "PaP", 
+    service: "Legal", status: "Pending", createdAt: "2024-07-21", updatedAt: "2024-07-22"
+  },
+  // ...
+];
 
-  // --- Change le statut d'une demande ---
-  const handleStatusChange = async (id: number, newStatus: string) => {
-    setNotice("");
-    try {
-      const res = await fetch(`/api/help-request/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!res.ok) throw new Error("API error");
-      setRequests(reqs =>
-        reqs.map(req =>
-          req.id === id ? { ...req, status: newStatus, updatedAt: new Date().toISOString().split("T")[0] } : req
-        )
-      );
-      setNotice("Status updated!");
-      setTimeout(() => setNotice(""), 2000);
-    } catch (err) {
-      // Correction : log l’erreur
-      // eslint-disable-next-line no-console
-      console.error("Erreur update statut :", err);
-      setNotice("Could not update status.");
-    }
-  };
+const DUMMY_REGISTERS: Register[] = [
+  {
+    id: 13, sexe: "F", status: "Pending", firstName: "Marie", lastName: "Louise",
+    email: "marie@gmail.com", phone: "987654", address: "Rue Y", city: "Cité Soleil", state: "Ouest",
+    zipcode: "6111", yearOfBirth: "2001", monthOfBirth: "12", dayOfBirth: "01", confirm: false,
+    document: "passport.pdf"
+  }
+  // ...
+];
 
+export default function AdminDashboardPage() {
+  const [tab, setTab] = useState("Client");
+  // Données réelles à charger via API si besoin !
+  const [clients, setClients] = useState<Client[]>(DUMMY_CLIENTS);
+  const [requests, setRequests] = useState<HelpRequest[]>(DUMMY_REQUESTS);
+  const [registers, setRegisters] = useState<Register[]>(DUMMY_REGISTERS);
+
+  // Recherche/tri par input
+  const [search, setSearch] = useState("");
+
+  // ---- FILTRES ----
+  function filterData<T extends Record<string, any>>(list: T[]): T[] {
+     if (!search) return list;
+    const s = search.toLowerCase();
+     return list.filter((item) =>
+    Object.values(item).some(
+      (val) =>
+        typeof val === "string" && val.toLowerCase().includes(s)
+      )
+    );
+  }
+
+
+  // ----- TABLEAU CLIENT -----
+  function renderClientTable() {
+    const list = filterData(clients);
+    return (
+      <table style={{ width: "100%" }}>
+        <thead>
+          <tr style={{ background: "#e8f2fa" }}>
+            <th>Sexe</th><th>Status</th><th>First Name</th><th>Last Name</th><th>Email</th>
+            <th>Phone</th><th>Address</th><th>City</th><th>State</th><th>Zipcode</th>
+            <th>Birth (Y/M/D)</th><th>Confirm</th>
+          </tr>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr><td colSpan={12} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+          ) : (
+            list.map(c => (
+              <tr key={c.id}>
+                <td>{c.sexe}</td><td>{c.status}</td><td>{c.firstName}</td><td>{c.lastName}</td><td>{c.email}</td>
+                <td>{c.phone}</td><td>{c.address}</td><td>{c.city}</td><td>{c.state}</td><td>{c.zipcode}</td>
+                <td>{`${c.yearOfBirth}/${c.monthOfBirth}/${c.dayOfBirth}`}</td>
+                <td>{c.confirm ? "✔️" : "❌"}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
+
+  // ----- TABLEAU REQUEST -----
+  function renderRequestTable() {
+    const list = filterData(requests);
+    return (
+      <table style={{ width: "100%" }}>
+        <thead>
+          <tr style={{ background: "#e8f2fa" }}>
+            <th>User</th><th>Sexe</th><th>State</th><th>City</th>
+            <th>Service</th><th>Status</th><th>Sent At</th><th>Last Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr><td colSpan={8} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+          ) : (
+            list.map(r => (
+              <tr key={r.id}>
+                <td>{r.user_name || r.user_id}</td>
+                <td>{r.sexe}</td>
+                <td>{r.state}</td>
+                <td>{r.city}</td>
+                <td>{r.service}</td>
+                <td>{r.status}</td>
+                <td>{r.createdAt}</td>
+                <td>{r.updatedAt}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
+
+  // ----- TABLEAU REGISTER -----
+  function renderRegisterTable() {
+    const list = filterData(registers);
+    return (
+      <table style={{ width: "100%" }}>
+        <thead>
+          <tr style={{ background: "#e8f2fa" }}>
+            <th>Sexe</th><th>Status</th><th>First Name</th><th>Last Name</th><th>Email</th>
+            <th>Phone</th><th>Address</th><th>City</th><th>State</th><th>Zipcode</th>
+            <th>Birth (Y/M/D)</th><th>Confirm</th><th>Document</th>
+          </tr>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr><td colSpan={13} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+          ) : (
+            list.map(r => (
+              <tr key={r.id}>
+                <td>{r.sexe}</td><td>{r.status}</td><td>{r.firstName}</td><td>{r.lastName}</td><td>{r.email}</td>
+                <td>{r.phone}</td><td>{r.address}</td><td>{r.city}</td><td>{r.state}</td><td>{r.zipcode}</td>
+                <td>{`${r.yearOfBirth}/${r.monthOfBirth}/${r.dayOfBirth}`}</td>
+                <td>{r.confirm ? "✔️" : "❌"}</td>
+                <td>{r.document}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
+
+  // ------ UI ------
   return (
     <>
       <Navbar />
       <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
-        <div style={{ maxWidth: 780, margin: "0 auto", padding: "44px 12px" }}>
-          <h1 style={{ fontSize: "1.7rem", fontWeight: 700, marginBottom: 18 }}>
-            All Help Requests
-          </h1>
-          {loading ? (
-            <div>Loading...</div>
-          ) : (
-            <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "1.04rem" }}>
-                <thead>
-                  <tr style={{ background: "#e8f2fa" }}>
-                    <th style={{ padding: "8px 3px", textAlign: "left" }}>User</th>
-                    <th style={{ padding: "8px 3px", textAlign: "left" }}>Service</th>
-                    <th style={{ padding: "8px 3px", textAlign: "left" }}>Status</th>
-                    <th style={{ padding: "8px 3px", textAlign: "left" }}>Sent At</th>
-                    <th style={{ padding: "8px 3px", textAlign: "left" }}>Last Update</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {requests.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} style={{ textAlign: "center", color: "#999" }}>No requests.</td>
-                    </tr>
-                  ) : (
-                    requests.map(r => (
-                      <tr key={r.id}>
-                        <td style={{ padding: "7px 3px" }}>{r.user_name || r.user_id}</td>
-                        <td style={{ padding: "7px 3px" }}>{r.service}</td>
-                        <td style={{ padding: "7px 3px" }}>
-                          <select
-                            value={r.status}
-                            onChange={e => handleStatusChange(r.id, e.target.value)}
-                            style={{
-                              background: "#e8f2fa",
-                              border: "1.2px solid #aaa",
-                              borderRadius: 7,
-                              padding: "3px 10px"
-                            }}>
-                            {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                          </select>
-                        </td>
-                        <td style={{ padding: "7px 3px" }}>{r.createdAt}</td>
-                        <td style={{ padding: "7px 3px" }}>{r.updatedAt}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-              {notice && <div style={{ marginTop: 10, color: "#197c33", fontWeight: 600 }}>{notice}</div>}
-            </div>
-          )}
+        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "44px 12px" }}>
+          <h1 style={{ fontSize: "1.7rem", fontWeight: 700, marginBottom: 18 }}>Admin Dashboard</h1>
+          <div style={{ marginBottom: 20 }}>
+            {TABS.map(t => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                style={{
+                  marginRight: 10, padding: "8px 24px",
+                  borderRadius: 9, border: "none",
+                  background: tab === t ? "#0a293dff" : "#e8f2fa",
+                  color: tab === t ? "#fff" : "#0a293d",
+                  fontWeight: 600, fontSize: "1.04rem",
+                  boxShadow: tab === t ? "0 2px 6px #0a293d24" : "none",
+                  cursor: "pointer"
+                }}
+              >
+                {t}
+              </button>
+            ))}
+            <input
+              placeholder="🔍 Search or sort by any field…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                float: "right", minWidth: 250, padding: 8, fontSize: 15,
+                border: "1px solid #c1d4ea", borderRadius: 9, marginTop: 4
+              }}
+            />
+          </div>
+          <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
+            {tab === "Client" && renderClientTable()}
+            {tab === "Request" && renderRequestTable()}
+            {tab === "Register" && renderRegisterTable()}
+          </div>
         </div>
       </main>
       <Footer />
