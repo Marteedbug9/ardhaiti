@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
@@ -41,7 +41,7 @@ interface HelpRequest {
 
 interface Register {
   [key: string]: unknown;
-  id: number;
+  id?: number;
   sexe: string;
   status: string;
   firstName: string;
@@ -59,42 +59,73 @@ interface Register {
   document: string;
 }
 
-// ---- DUMMY DATA ----
-const DUMMY_CLIENTS: Client[] = [
-  {
-    id: 1, sexe: "M", status: "Active", firstName: "Jean", lastName: "Pierre",
-    email: "jp@gmail.com", phone: "123456", address: "Rue X", city: "Port-au-Prince", state: "Ouest", zipcode: "6110",
-    yearOfBirth: "1992", monthOfBirth: "04", dayOfBirth: "22", confirm: true
-  },
-  // Ajoute plus de clients ici...
-];
-
-const DUMMY_REQUESTS: HelpRequest[] = [
-  {
-    id: 5, user_id: 1, user_name: "Jean Pierre", sexe: "M", state: "Ouest", city: "PaP",
-    service: "Legal", status: "Pending", createdAt: "2024-07-21", updatedAt: "2024-07-22"
-  },
-  // ...
-];
-
-const DUMMY_REGISTERS: Register[] = [
-  {
-    id: 13, sexe: "F", status: "Pending", firstName: "Marie", lastName: "Louise",
-    email: "marie@gmail.com", phone: "987654", address: "Rue Y", city: "Cité Soleil", state: "Ouest",
-    zipcode: "6111", yearOfBirth: "2001", monthOfBirth: "12", dayOfBirth: "01", confirm: false,
-    document: "passport.pdf"
-  }
-  // ...
-];
+// ---- INIT ÉTAT POUR AJOUT REGISTER ----
+const INIT_REGISTER: Register = {
+  sexe: "",
+  status: "Pending",
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  address: "",
+  city: "",
+  state: "",
+  zipcode: "",
+  yearOfBirth: "",
+  monthOfBirth: "",
+  dayOfBirth: "",
+  confirm: false,
+  document: "",
+};
 
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState("Client");
-  const [clients] = useState<Client[]>(DUMMY_CLIENTS);
-  const [requests] = useState<HelpRequest[]>(DUMMY_REQUESTS);
-  const [registers] = useState<Register[]>(DUMMY_REGISTERS);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [requests, setRequests] = useState<HelpRequest[]>([]);
+  const [registers, setRegisters] = useState<Register[]>([]);
+  const [registerForm, setRegisterForm] = useState<Register>(INIT_REGISTER);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [registerError, setRegisterError] = useState("");
   const [search, setSearch] = useState("");
 
-  // ---- FILTRES ----
+  // Charger data au chargement de la page
+  useEffect(() => {
+    fetchClients();
+    fetchRequests();
+    fetchRegisters();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const res = await fetch("/api/admin/clients");
+      if (!res.ok) throw new Error("Erreur lors du chargement des clients");
+      setClients(await res.json());
+    } catch (e: any) {
+      setClients([]); // en cas d’erreur, vider
+    }
+  };
+
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch("/api/admin/requests");
+      if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
+      setRequests(await res.json());
+    } catch (e: any) {
+      setRequests([]);
+    }
+  };
+
+  const fetchRegisters = async () => {
+    try {
+      const res = await fetch("/api/admin/registers");
+      if (!res.ok) throw new Error("Erreur lors du chargement des registers");
+      setRegisters(await res.json());
+    } catch (e: any) {
+      setRegisters([]);
+    }
+  };
+
+  // FILTRES
   function filterData<T extends Record<string, unknown>>(list: T[], search: string): T[] {
     if (!search) return list;
     const s = search.toLowerCase();
@@ -105,200 +136,338 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // ----- TABLEAU CLIENT -----
-  function renderClientTable() {
-    const list = filterData(clients, search);
+  // FORMULAIRE AJOUT REGISTER
+  function renderRegisterForm() {
     return (
-      <table
+      <form
+        onSubmit={async e => {
+          e.preventDefault();
+          setRegisterSuccess(false);
+          setRegisterError("");
+          try {
+            const res = await fetch("/api/admin/registers", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(registerForm)
+            });
+            if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+            setRegisterSuccess(true);
+            setRegisterForm(INIT_REGISTER);
+            fetchRegisters(); // recharger
+          } catch (e: any) {
+            setRegisterError(e.message || "Erreur inconnue");
+          }
+        }}
         style={{
-          width: "100%",
-          borderCollapse: "separate",
-          borderSpacing: 0,
-          background: "#fafdff",
-          borderRadius: 13,
-          overflow: "hidden",
-          boxShadow: "0 2px 12px #00408009"
+          background: "#f6fbff",
+          border: "1px solid #c6e4ff",
+          borderRadius: 10,
+          padding: 18,
+          marginBottom: 32,
+          marginTop: 6,
+          boxShadow: "0 2px 8px #165b8315"
         }}
       >
-        <thead>
-          <tr style={{ background: "#1671b8", color: "#fff" }}>
-            <th style={{ padding: 10 }}>Sexe</th>
-            <th style={{ padding: 10 }}>Status</th>
-            <th style={{ padding: 10 }}>First Name</th>
-            <th style={{ padding: 10 }}>Last Name</th>
-            <th style={{ padding: 10 }}>Email</th>
-            <th style={{ padding: 10 }}>Phone</th>
-            <th style={{ padding: 10 }}>Address</th>
-            <th style={{ padding: 10 }}>City</th>
-            <th style={{ padding: 10 }}>State</th>
-            <th style={{ padding: 10 }}>Zipcode</th>
-            <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
-            <th style={{ padding: 10 }}>Confirm</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.length === 0 ? (
-            <tr>
-              <td colSpan={12} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
-            </tr>
-          ) : (
-            list.map((c, idx) => (
-              <tr
-                key={String(c.id)}
-                style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-              >
-                <td style={{ padding: 8 }}>{c.sexe as string}</td>
-                <td style={{ padding: 8 }}>{c.status as string}</td>
-                <td style={{ padding: 8 }}>{c.firstName as string}</td>
-                <td style={{ padding: 8 }}>{c.lastName as string}</td>
-                <td style={{ padding: 8 }}>{c.email as string}</td>
-                <td style={{ padding: 8 }}>{c.phone as string}</td>
-                <td style={{ padding: 8 }}>{c.address as string}</td>
-                <td style={{ padding: 8 }}>{c.city as string}</td>
-                <td style={{ padding: 8 }}>{c.state as string}</td>
-                <td style={{ padding: 8 }}>{c.zipcode as string}</td>
-                <td style={{ padding: 8 }}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
-                <td style={{ padding: 8, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+        <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>Sexe *</label>
+            <input required name="sexe" value={registerForm.sexe} onChange={e => setRegisterForm(f => ({ ...f, sexe: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Status *</label>
+            <input required name="status" value={registerForm.status} onChange={e => setRegisterForm(f => ({ ...f, status: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Document</label>
+            <input name="document" value={registerForm.document} onChange={e => setRegisterForm(f => ({ ...f, document: e.target.value }))} style={inputStyle} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>First Name *</label>
+            <input required name="firstName" value={registerForm.firstName} onChange={e => setRegisterForm(f => ({ ...f, firstName: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Last Name *</label>
+            <input required name="lastName" value={registerForm.lastName} onChange={e => setRegisterForm(f => ({ ...f, lastName: e.target.value }))} style={inputStyle} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>Email *</label>
+            <input required name="email" value={registerForm.email} onChange={e => setRegisterForm(f => ({ ...f, email: e.target.value }))} style={inputStyle} type="email" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Phone *</label>
+            <input required name="phone" value={registerForm.phone} onChange={e => setRegisterForm(f => ({ ...f, phone: e.target.value }))} style={inputStyle} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>Address *</label>
+            <input required name="address" value={registerForm.address} onChange={e => setRegisterForm(f => ({ ...f, address: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>City *</label>
+            <input required name="city" value={registerForm.city} onChange={e => setRegisterForm(f => ({ ...f, city: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>State *</label>
+            <input required name="state" value={registerForm.state} onChange={e => setRegisterForm(f => ({ ...f, state: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Zipcode *</label>
+            <input required name="zipcode" value={registerForm.zipcode} onChange={e => setRegisterForm(f => ({ ...f, zipcode: e.target.value }))} style={inputStyle} />
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
+          <div style={{ flex: 1 }}>
+            <label>Year of Birth *</label>
+            <input required name="yearOfBirth" value={registerForm.yearOfBirth} onChange={e => setRegisterForm(f => ({ ...f, yearOfBirth: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Month of Birth *</label>
+            <input required name="monthOfBirth" value={registerForm.monthOfBirth} onChange={e => setRegisterForm(f => ({ ...f, monthOfBirth: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Day of Birth *</label>
+            <input required name="dayOfBirth" value={registerForm.dayOfBirth} onChange={e => setRegisterForm(f => ({ ...f, dayOfBirth: e.target.value }))} style={inputStyle} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <label>Confirm *</label>
+            <select required name="confirm" value={registerForm.confirm ? "true" : "false"} onChange={e => setRegisterForm(f => ({ ...f, confirm: e.target.value === "true" }))} style={inputStyle}>
+              <option value="false">Non</option>
+              <option value="true">Oui</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit"
+          style={{
+            background: "#1976d2",
+            color: "#fff",
+            fontWeight: 700,
+            fontSize: 17,
+            border: "none",
+            borderRadius: 8,
+            padding: "12px 0",
+            marginTop: 10,
+            boxShadow: "0 2px 8px #135ba733",
+            cursor: "pointer",
+            transition: "background .15s"
+          }}>
+          Ajouter
+        </button>
+        {registerSuccess && (
+          <div style={{ color: "#259621", fontWeight: 600, background: "#edffec", borderRadius: 7, padding: 12, marginTop: 6, textAlign: "center", fontSize: 15 }}>
+            Enregistré avec succès !
+          </div>
+        )}
+        {registerError && (
+          <div style={{ color: "#c72525", fontWeight: 600, background: "#ffeded", borderRadius: 7, padding: 12, marginTop: 6, textAlign: "center", fontSize: 15 }}>
+            {registerError}
+          </div>
+        )}
+      </form>
     );
   }
 
-  // ----- TABLEAU REQUEST -----
-  function renderRequestTable() {
-    const list = filterData(requests, search);
-    return (
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "separate",
-          borderSpacing: 0,
-          background: "#fafdff",
-          borderRadius: 13,
-          overflow: "hidden",
-          boxShadow: "0 2px 12px #00408009"
-        }}
-      >
-        <thead>
-          <tr style={{ background: "#1671b8", color: "#fff" }}>
-            <th style={{ padding: 10 }}>User</th>
-            <th style={{ padding: 10 }}>Sexe</th>
-            <th style={{ padding: 10 }}>State</th>
-            <th style={{ padding: 10 }}>City</th>
-            <th style={{ padding: 10 }}>Service</th>
-            <th style={{ padding: 10 }}>Status</th>
-            <th style={{ padding: 10 }}>Sent At</th>
-            <th style={{ padding: 10 }}>Last Update</th>
+  // ... fonctions renderClientTable, renderRequestTable, renderRegisterTable identiques à ta version précédente
+// Pour la liste des clients
+function renderClientTable() {
+  const list = filterData(clients, search);
+  return (
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "separate",
+        borderSpacing: 0,
+        background: "#fafdff",
+        borderRadius: 13,
+        overflow: "hidden",
+        boxShadow: "0 2px 12px #00408009"
+      }}
+    >
+      <thead>
+        <tr style={{ background: "#1671b8", color: "#fff" }}>
+          <th style={{ padding: 10 }}>Sexe</th>
+          <th style={{ padding: 10 }}>Status</th>
+          <th style={{ padding: 10 }}>First Name</th>
+          <th style={{ padding: 10 }}>Last Name</th>
+          <th style={{ padding: 10 }}>Email</th>
+          <th style={{ padding: 10 }}>Phone</th>
+          <th style={{ padding: 10 }}>Address</th>
+          <th style={{ padding: 10 }}>City</th>
+          <th style={{ padding: 10 }}>State</th>
+          <th style={{ padding: 10 }}>Zipcode</th>
+          <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
+          <th style={{ padding: 10 }}>Confirm</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr>
+            <td colSpan={12} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>
+              No results
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {list.length === 0 ? (
-            <tr>
-              <td colSpan={8} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+        ) : (
+          list.map((c, idx) => (
+            <tr
+              key={String(c.id)}
+              style={{
+                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                transition: "background 0.2s"
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+            >
+              <td style={{ padding: 8 }}>{c.sexe as string}</td>
+              <td style={{ padding: 8 }}>{c.status as string}</td>
+              <td style={{ padding: 8 }}>{c.firstName as string}</td>
+              <td style={{ padding: 8 }}>{c.lastName as string}</td>
+              <td style={{ padding: 8 }}>{c.email as string}</td>
+              <td style={{ padding: 8 }}>{c.phone as string}</td>
+              <td style={{ padding: 8 }}>{c.address as string}</td>
+              <td style={{ padding: 8 }}>{c.city as string}</td>
+              <td style={{ padding: 8 }}>{c.state as string}</td>
+              <td style={{ padding: 8 }}>{c.zipcode as string}</td>
+              <td style={{ padding: 8 }}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
+              <td style={{ padding: 8, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
             </tr>
-          ) : (
-            list.map((r, idx) => (
-              <tr
-                key={String(r.id)}
-                style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-              >
-                <td style={{ padding: 8 }}>{(r.user_name as string) || (r.user_id as number)}</td>
-                <td style={{ padding: 8 }}>{r.sexe as string}</td>
-                <td style={{ padding: 8 }}>{r.state as string}</td>
-                <td style={{ padding: 8 }}>{r.city as string}</td>
-                <td style={{ padding: 8 }}>{r.service as string}</td>
-                <td style={{ padding: 8 }}>{r.status as string}</td>
-                <td style={{ padding: 8 }}>{r.createdAt as string}</td>
-                <td style={{ padding: 8 }}>{r.updatedAt as string}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    );
-  }
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
 
-  // ----- TABLEAU REGISTER -----
-  function renderRegisterTable() {
-    const list = filterData(registers, search);
-    return (
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "separate",
-          borderSpacing: 0,
-          background: "#fafdff",
-          borderRadius: 13,
-          overflow: "hidden",
-          boxShadow: "0 2px 12px #00408009"
-        }}
-      >
-        <thead>
-          <tr style={{ background: "#1671b8", color: "#fff" }}>
-            <th style={{ padding: 10 }}>Sexe</th>
-            <th style={{ padding: 10 }}>Status</th>
-            <th style={{ padding: 10 }}>First Name</th>
-            <th style={{ padding: 10 }}>Last Name</th>
-            <th style={{ padding: 10 }}>Email</th>
-            <th style={{ padding: 10 }}>Phone</th>
-            <th style={{ padding: 10 }}>Address</th>
-            <th style={{ padding: 10 }}>City</th>
-            <th style={{ padding: 10 }}>State</th>
-            <th style={{ padding: 10 }}>Zipcode</th>
-            <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
-            <th style={{ padding: 10 }}>Confirm</th>
-            <th style={{ padding: 10 }}>Document</th>
+// Pour la liste des demandes d'aide
+function renderRequestTable() {
+  const list = filterData(requests, search);
+  return (
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "separate",
+        borderSpacing: 0,
+        background: "#fafdff",
+        borderRadius: 13,
+        overflow: "hidden",
+        boxShadow: "0 2px 12px #00408009"
+      }}
+    >
+      <thead>
+        <tr style={{ background: "#1671b8", color: "#fff" }}>
+          <th style={{ padding: 10 }}>User</th>
+          <th style={{ padding: 10 }}>Sexe</th>
+          <th style={{ padding: 10 }}>State</th>
+          <th style={{ padding: 10 }}>City</th>
+          <th style={{ padding: 10 }}>Service</th>
+          <th style={{ padding: 10 }}>Status</th>
+          <th style={{ padding: 10 }}>Sent At</th>
+          <th style={{ padding: 10 }}>Last Update</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr>
+            <td colSpan={8} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>
+              No results
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {list.length === 0 ? (
-            <tr>
-              <td colSpan={13} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+        ) : (
+          list.map((r, idx) => (
+            <tr
+              key={String(r.id)}
+              style={{
+                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                transition: "background 0.2s"
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+            >
+              <td style={{ padding: 8 }}>{(r.user_name as string) || (r.user_id as number)}</td>
+              <td style={{ padding: 8 }}>{r.sexe as string}</td>
+              <td style={{ padding: 8 }}>{r.state as string}</td>
+              <td style={{ padding: 8 }}>{r.city as string}</td>
+              <td style={{ padding: 8 }}>{r.service as string}</td>
+              <td style={{ padding: 8 }}>{r.status as string}</td>
+              <td style={{ padding: 8 }}>{r.createdAt as string}</td>
+              <td style={{ padding: 8 }}>{r.updatedAt as string}</td>
             </tr>
-          ) : (
-            list.map((r, idx) => (
-              <tr
-                key={String(r.id)}
-                style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-              >
-                <td style={{ padding: 8 }}>{r.sexe as string}</td>
-                <td style={{ padding: 8 }}>{r.status as string}</td>
-                <td style={{ padding: 8 }}>{r.firstName as string}</td>
-                <td style={{ padding: 8 }}>{r.lastName as string}</td>
-                <td style={{ padding: 8 }}>{r.email as string}</td>
-                <td style={{ padding: 8 }}>{r.phone as string}</td>
-                <td style={{ padding: 8 }}>{r.address as string}</td>
-                <td style={{ padding: 8 }}>{r.city as string}</td>
-                <td style={{ padding: 8 }}>{r.state as string}</td>
-                <td style={{ padding: 8 }}>{r.zipcode as string}</td>
-                <td style={{ padding: 8 }}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
-                <td style={{ padding: 8, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
-                <td style={{ padding: 8 }}>{r.document as string}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    );
-  }
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
+function renderRegisterTable() {
+  const list = filterData(registers, search);
+  return (
+    <table
+      style={{
+        width: "100%",
+        borderCollapse: "separate",
+        borderSpacing: 0,
+        background: "#fafdff",
+        borderRadius: 13,
+        overflow: "hidden",
+        boxShadow: "0 2px 12px #00408009"
+      }}
+    >
+      <thead>
+        <tr style={{ background: "#1671b8", color: "#fff" }}>
+          <th style={{ padding: 10 }}>Sexe</th>
+          <th style={{ padding: 10 }}>Status</th>
+          <th style={{ padding: 10 }}>First Name</th>
+          <th style={{ padding: 10 }}>Last Name</th>
+          <th style={{ padding: 10 }}>Email</th>
+          <th style={{ padding: 10 }}>Phone</th>
+          <th style={{ padding: 10 }}>Address</th>
+          <th style={{ padding: 10 }}>City</th>
+          <th style={{ padding: 10 }}>State</th>
+          <th style={{ padding: 10 }}>Zipcode</th>
+          <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
+          <th style={{ padding: 10 }}>Confirm</th>
+          <th style={{ padding: 10 }}>Document</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr>
+            <td colSpan={13} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+          </tr>
+        ) : (
+          list.map((r, idx) => (
+            <tr
+              key={String(r.id)}
+              style={{
+                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                transition: "background 0.2s"
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+            >
+              <td style={{ padding: 8 }}>{r.sexe as string}</td>
+              <td style={{ padding: 8 }}>{r.status as string}</td>
+              <td style={{ padding: 8 }}>{r.firstName as string}</td>
+              <td style={{ padding: 8 }}>{r.lastName as string}</td>
+              <td style={{ padding: 8 }}>{r.email as string}</td>
+              <td style={{ padding: 8 }}>{r.phone as string}</td>
+              <td style={{ padding: 8 }}>{r.address as string}</td>
+              <td style={{ padding: 8 }}>{r.city as string}</td>
+              <td style={{ padding: 8 }}>{r.state as string}</td>
+              <td style={{ padding: 8 }}>{r.zipcode as string}</td>
+              <td style={{ padding: 8 }}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
+              <td style={{ padding: 8, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
+              <td style={{ padding: 8 }}>{r.document as string}</td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
 
   // ------ UI ------
   return (
@@ -336,13 +505,27 @@ export default function AdminDashboardPage() {
             />
           </div>
           <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
-            {tab === "Client" && renderClientTable()}
-            {tab === "Request" && renderRequestTable()}
-            {tab === "Register" && renderRegisterTable()}
-          </div>
+         {tab === "Client" && renderClientTable()}
+        {tab === "Request" && renderRequestTable()}
+       {tab === "Register" && renderRegisterTable()}
+        </div>
+
         </div>
       </main>
       <Footer />
     </>
   );
 }
+
+// Style input partagé
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  marginTop: 3,
+  marginBottom: 0,
+  padding: "10px 11px",
+  fontSize: 15,
+  borderRadius: 8,
+  border: "1px solid #c4d5ec",
+  outline: "none",
+  background: "#f8fbfe"
+};
