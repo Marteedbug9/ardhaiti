@@ -7,7 +7,7 @@ const TABS = ["Client", "Request", "Register"];
 
 // ---- MODELES TYPES ----
 interface Client {
-  [key: string]: unknown; // <-- index signature ajouté
+  [key: string]: unknown;
   id: number;
   sexe: string;
   status: string;
@@ -89,12 +89,9 @@ const DUMMY_REGISTERS: Register[] = [
 
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState("Client");
-  // Données réelles à charger via API si besoin !
   const [clients] = useState<Client[]>(DUMMY_CLIENTS);
   const [requests] = useState<HelpRequest[]>(DUMMY_REQUESTS);
   const [registers] = useState<Register[]>(DUMMY_REGISTERS);
-
-  // Recherche/tri par input
   const [search, setSearch] = useState("");
 
   // ---- FILTRES ----
@@ -112,24 +109,61 @@ export default function AdminDashboardPage() {
   function renderClientTable() {
     const list = filterData(clients, search);
     return (
-      <table style={{ width: "100%" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "separate",
+          borderSpacing: 0,
+          background: "#fafdff",
+          borderRadius: 13,
+          overflow: "hidden",
+          boxShadow: "0 2px 12px #00408009"
+        }}
+      >
         <thead>
-          <tr style={{ background: "#e8f2fa" }}>
-            <th>Sexe</th><th>Status</th><th>First Name</th><th>Last Name</th><th>Email</th>
-            <th>Phone</th><th>Address</th><th>City</th><th>State</th><th>Zipcode</th>
-            <th>Birth (Y/M/D)</th><th>Confirm</th>
+          <tr style={{ background: "#1671b8", color: "#fff" }}>
+            <th style={{ padding: 10 }}>Sexe</th>
+            <th style={{ padding: 10 }}>Status</th>
+            <th style={{ padding: 10 }}>First Name</th>
+            <th style={{ padding: 10 }}>Last Name</th>
+            <th style={{ padding: 10 }}>Email</th>
+            <th style={{ padding: 10 }}>Phone</th>
+            <th style={{ padding: 10 }}>Address</th>
+            <th style={{ padding: 10 }}>City</th>
+            <th style={{ padding: 10 }}>State</th>
+            <th style={{ padding: 10 }}>Zipcode</th>
+            <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
+            <th style={{ padding: 10 }}>Confirm</th>
           </tr>
         </thead>
         <tbody>
           {list.length === 0 ? (
-            <tr><td colSpan={12} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+            <tr>
+              <td colSpan={12} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+            </tr>
           ) : (
-            list.map(c => (
-              <tr key={String(c.id)}>
-                <td>{c.sexe as string}</td><td>{c.status as string}</td><td>{c.firstName as string}</td><td>{c.lastName as string}</td><td>{c.email as string}</td>
-                <td>{c.phone as string}</td><td>{c.address as string}</td><td>{c.city as string}</td><td>{c.state as string}</td><td>{c.zipcode as string}</td>
-                <td>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
-                <td>{c.confirm ? "✔️" : "❌"}</td>
+            list.map((c, idx) => (
+              <tr
+                key={String(c.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={{ padding: 8 }}>{c.sexe as string}</td>
+                <td style={{ padding: 8 }}>{c.status as string}</td>
+                <td style={{ padding: 8 }}>{c.firstName as string}</td>
+                <td style={{ padding: 8 }}>{c.lastName as string}</td>
+                <td style={{ padding: 8 }}>{c.email as string}</td>
+                <td style={{ padding: 8 }}>{c.phone as string}</td>
+                <td style={{ padding: 8 }}>{c.address as string}</td>
+                <td style={{ padding: 8 }}>{c.city as string}</td>
+                <td style={{ padding: 8 }}>{c.state as string}</td>
+                <td style={{ padding: 8 }}>{c.zipcode as string}</td>
+                <td style={{ padding: 8 }}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
+                <td style={{ padding: 8, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
               </tr>
             ))
           )}
@@ -142,27 +176,53 @@ export default function AdminDashboardPage() {
   function renderRequestTable() {
     const list = filterData(requests, search);
     return (
-      <table style={{ width: "100%" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "separate",
+          borderSpacing: 0,
+          background: "#fafdff",
+          borderRadius: 13,
+          overflow: "hidden",
+          boxShadow: "0 2px 12px #00408009"
+        }}
+      >
         <thead>
-          <tr style={{ background: "#e8f2fa" }}>
-            <th>User</th><th>Sexe</th><th>State</th><th>City</th>
-            <th>Service</th><th>Status</th><th>Sent At</th><th>Last Update</th>
+          <tr style={{ background: "#1671b8", color: "#fff" }}>
+            <th style={{ padding: 10 }}>User</th>
+            <th style={{ padding: 10 }}>Sexe</th>
+            <th style={{ padding: 10 }}>State</th>
+            <th style={{ padding: 10 }}>City</th>
+            <th style={{ padding: 10 }}>Service</th>
+            <th style={{ padding: 10 }}>Status</th>
+            <th style={{ padding: 10 }}>Sent At</th>
+            <th style={{ padding: 10 }}>Last Update</th>
           </tr>
         </thead>
         <tbody>
           {list.length === 0 ? (
-            <tr><td colSpan={8} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+            <tr>
+              <td colSpan={8} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+            </tr>
           ) : (
-            list.map(r => (
-              <tr key={String(r.id)}>
-                <td>{(r.user_name as string) || (r.user_id as number)}</td>
-                <td>{r.sexe as string}</td>
-                <td>{r.state as string}</td>
-                <td>{r.city as string}</td>
-                <td>{r.service as string}</td>
-                <td>{r.status as string}</td>
-                <td>{r.createdAt as string}</td>
-                <td>{r.updatedAt as string}</td>
+            list.map((r, idx) => (
+              <tr
+                key={String(r.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={{ padding: 8 }}>{(r.user_name as string) || (r.user_id as number)}</td>
+                <td style={{ padding: 8 }}>{r.sexe as string}</td>
+                <td style={{ padding: 8 }}>{r.state as string}</td>
+                <td style={{ padding: 8 }}>{r.city as string}</td>
+                <td style={{ padding: 8 }}>{r.service as string}</td>
+                <td style={{ padding: 8 }}>{r.status as string}</td>
+                <td style={{ padding: 8 }}>{r.createdAt as string}</td>
+                <td style={{ padding: 8 }}>{r.updatedAt as string}</td>
               </tr>
             ))
           )}
@@ -175,25 +235,63 @@ export default function AdminDashboardPage() {
   function renderRegisterTable() {
     const list = filterData(registers, search);
     return (
-      <table style={{ width: "100%" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "separate",
+          borderSpacing: 0,
+          background: "#fafdff",
+          borderRadius: 13,
+          overflow: "hidden",
+          boxShadow: "0 2px 12px #00408009"
+        }}
+      >
         <thead>
-          <tr style={{ background: "#e8f2fa" }}>
-            <th>Sexe</th><th>Status</th><th>First Name</th><th>Last Name</th><th>Email</th>
-            <th>Phone</th><th>Address</th><th>City</th><th>State</th><th>Zipcode</th>
-            <th>Birth (Y/M/D)</th><th>Confirm</th><th>Document</th>
+          <tr style={{ background: "#1671b8", color: "#fff" }}>
+            <th style={{ padding: 10 }}>Sexe</th>
+            <th style={{ padding: 10 }}>Status</th>
+            <th style={{ padding: 10 }}>First Name</th>
+            <th style={{ padding: 10 }}>Last Name</th>
+            <th style={{ padding: 10 }}>Email</th>
+            <th style={{ padding: 10 }}>Phone</th>
+            <th style={{ padding: 10 }}>Address</th>
+            <th style={{ padding: 10 }}>City</th>
+            <th style={{ padding: 10 }}>State</th>
+            <th style={{ padding: 10 }}>Zipcode</th>
+            <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
+            <th style={{ padding: 10 }}>Confirm</th>
+            <th style={{ padding: 10 }}>Document</th>
           </tr>
         </thead>
         <tbody>
           {list.length === 0 ? (
-            <tr><td colSpan={13} style={{ textAlign: "center", color: "#888" }}>No results</td></tr>
+            <tr>
+              <td colSpan={13} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+            </tr>
           ) : (
-            list.map(r => (
-              <tr key={String(r.id)}>
-                <td>{r.sexe as string}</td><td>{r.status as string}</td><td>{r.firstName as string}</td><td>{r.lastName as string}</td><td>{r.email as string}</td>
-                <td>{r.phone as string}</td><td>{r.address as string}</td><td>{r.city as string}</td><td>{r.state as string}</td><td>{r.zipcode as string}</td>
-                <td>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
-                <td>{r.confirm ? "✔️" : "❌"}</td>
-                <td>{r.document as string}</td>
+            list.map((r, idx) => (
+              <tr
+                key={String(r.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={{ padding: 8 }}>{r.sexe as string}</td>
+                <td style={{ padding: 8 }}>{r.status as string}</td>
+                <td style={{ padding: 8 }}>{r.firstName as string}</td>
+                <td style={{ padding: 8 }}>{r.lastName as string}</td>
+                <td style={{ padding: 8 }}>{r.email as string}</td>
+                <td style={{ padding: 8 }}>{r.phone as string}</td>
+                <td style={{ padding: 8 }}>{r.address as string}</td>
+                <td style={{ padding: 8 }}>{r.city as string}</td>
+                <td style={{ padding: 8 }}>{r.state as string}</td>
+                <td style={{ padding: 8 }}>{r.zipcode as string}</td>
+                <td style={{ padding: 8 }}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
+                <td style={{ padding: 8, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
+                <td style={{ padding: 8 }}>{r.document as string}</td>
               </tr>
             ))
           )}
@@ -208,7 +306,7 @@ export default function AdminDashboardPage() {
       <Navbar />
       <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", padding: "44px 12px" }}>
-          <h1 style={{ fontSize: "1.7rem", fontWeight: 700, marginBottom: 18 }}>Admin Dashboard</h1>
+          <h1 style={{ fontSize: "1.7rem", fontWeight: 700, marginBottom: 18, color: "#145a7e" }}>Admin Dashboard</h1>
           <div style={{ marginBottom: 20 }}>
             {TABS.map(t => (
               <button
