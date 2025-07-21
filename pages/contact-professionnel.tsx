@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
 interface ContactFormState {

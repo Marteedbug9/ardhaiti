@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
 interface HumanitarianProjectForm {
@@ -54,22 +54,24 @@ export default function HumanitarianProjectsPage() {
     fetchProjects();
   }, []);
 
-const fetchProjects = async () => {
+const fetchProjects = async (): Promise<void> => {
   try {
     const res = await fetch("/api/admin/humanitarian-projects");
     if (!res.ok) throw new Error("Erreur lors du chargement des projets");
-    const data = await res.json();
+    const data: HumanitarianProject[] = await res.json();
     setProjects(data);
-  } catch (err: any) {
-    setError(err.message || "Erreur inconnue lors du chargement");
+  } catch (err) {
+    if (err instanceof Error) {
+      setError(err.message || "Erreur inconnue lors du chargement");
+    } else {
+      setError("Erreur inconnue lors du chargement");
+    }
   }
 };
 
-const handleChange = (
-  e: React.ChangeEvent<
-    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-  >
-) => {
+const handleChange: React.ChangeEventHandler<
+  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+> = (e) => {
   const { name, value } = e.target;
   if (numberFields.includes(name)) {
     setForm((f) => ({
@@ -84,7 +86,7 @@ const handleChange = (
   }
 };
 
-const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
   e.preventDefault();
   setSuccess(false);
   setError("");
@@ -98,10 +100,15 @@ const handleSubmit = async (e: React.FormEvent) => {
     setSuccess(true);
     setForm(INIT_STATE);
     fetchProjects();
-  } catch (err: any) {
-    setError(err.message || "Erreur inconnue");
+  } catch (err) {
+    if (err instanceof Error) {
+      setError(err.message || "Erreur inconnue");
+    } else {
+      setError("Erreur inconnue");
+    }
   }
 };
+
 
   return (
     <>
