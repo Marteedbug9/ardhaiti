@@ -14,41 +14,43 @@ export default function SetPasswordPage() {
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess(false);
+  e.preventDefault();
+  setError("");
+  setSuccess(false);
 
-    if (!token || typeof token !== "string") {
-      setError("Lien invalide ou expiré.");
-      return;
-    }
-    if (!password || password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
+  if (!token || typeof token !== "string") {
+    setError("Lien invalide ou expiré.");
+    return;
+  }
+  if (!password || password.length < 8) {
+    setError("Le mot de passe doit contenir au moins 8 caractères.");
+    return;
+  }
+  if (password !== confirmPassword) {
+    setError("Les mots de passe ne correspondent pas.");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin/users/set-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, password, confirmPassword })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erreur inconnue");
-      setSuccess(true);
-      setPassword("");
-      setConfirmPassword("");
-    } catch (err: any) {
-      setError(err.message || "Erreur inconnue");
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+  try {
+    const res = await fetch("/api/admin/users/set-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, password, confirmPassword })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erreur inconnue");
+    setSuccess(true);
+    setPassword("");
+    setConfirmPassword("");
+  } catch (err: unknown) {
+    if (err instanceof Error) setError(err.message || "Erreur inconnue");
+    else setError("Erreur inconnue");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>
