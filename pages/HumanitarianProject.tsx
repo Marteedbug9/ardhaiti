@@ -171,7 +171,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> 
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Main d'œuvre *</label>
+                <label>Aide Humaine*</label>
                 <input
                   required type="number" min={0}
                   name="workforceCount" value={form.workforceCount}
@@ -295,7 +295,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> 
                   <tr style={{ background: "#e8f2fa" }}>
                     <th>Nom</th>
                     <th>Bénéficiaires</th>
-                    <th>Main d'œuvre</th>
+                    <th>Aide Humaine</th>
                     <th>Dépenses ($)</th>
                     <th>Type</th>
                     <th>Statut</th>

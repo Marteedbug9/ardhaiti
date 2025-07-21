@@ -1,5 +1,5 @@
-// frontend/components/ImageSlider.tsx
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const images = [
   "/samuel-schroth-hyPt63Df3Dw-unsplash.jpg",
@@ -8,6 +8,10 @@ const images = [
   "/Las Vegas FO.png",
   "/2.jpg"
 ];
+
+// Spécifie la largeur et la hauteur en pixels selon tes besoins !
+const IMAGE_WIDTH = 960;
+const IMAGE_HEIGHT = 400;
 
 export default function ImageSlider() {
   const [index, setIndex] = useState(0);
@@ -20,15 +24,33 @@ export default function ImageSlider() {
   }, []);
 
   return (
-    <div className="slider-container">
+    <div className="slider-container" style={{ position: "relative", width: IMAGE_WIDTH, height: IMAGE_HEIGHT, overflow: "hidden" }}>
       {images.map((src, i) => (
-        <img
+        <div
           key={src}
-          src={src}
-          alt={`slide-${i}`}
-          className={`slide${i === index ? " active" : ""}`}
-          style={{ objectFit: "cover" }}
-        />
+          style={{
+            display: i === index ? "block" : "none",
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+            left: 0,
+            top: 0,
+            transition: "opacity .5s"
+          }}
+        >
+          <Image
+            src={src}
+            alt={`slide-${i}`}
+            width={IMAGE_WIDTH}
+            height={IMAGE_HEIGHT}
+            style={{
+              objectFit: "cover",
+              width: "100%",
+              height: "100%"
+            }}
+            priority={i === 0}
+          />
+        </div>
       ))}
     </div>
   );

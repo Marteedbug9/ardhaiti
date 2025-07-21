@@ -48,16 +48,21 @@ export default function AdminProfessionalContactsPage() {
 
   useEffect(() => {
     fetchContacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchContacts = async () => {
     try {
       const res = await fetch("/api/admin/professional-contacts");
       if (!res.ok) throw new Error("Erreur lors du chargement des contacts");
-      const data = await res.json();
+      const data: ProContact[] = await res.json();
       setContacts(data);
-    } catch (err: any) {
-      setError(err.message || "Erreur inconnue lors du chargement");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erreur inconnue lors du chargement");
+      }
     }
   };
 
@@ -65,7 +70,7 @@ export default function AdminProfessionalContactsPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSuccess(false);
     setError("");
@@ -79,8 +84,12 @@ export default function AdminProfessionalContactsPage() {
       setSuccess(true);
       setForm(INIT_STATE);
       fetchContacts();
-    } catch (err: any) {
-      setError(err.message || "Erreur inconnue");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erreur inconnue");
+      }
     }
   };
 

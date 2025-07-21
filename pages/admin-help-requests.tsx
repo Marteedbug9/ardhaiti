@@ -95,35 +95,37 @@ export default function AdminDashboardPage() {
     fetchRegisters();
   }, []);
 
-  const fetchClients = async () => {
-    try {
-      const res = await fetch("/api/admin/clients");
-      if (!res.ok) throw new Error("Erreur lors du chargement des clients");
-      setClients(await res.json());
-    } catch (e: any) {
-      setClients([]); // en cas d’erreur, vider
-    }
-  };
+ const fetchClients = async () => {
+  try {
+    const res = await fetch("/api/admin/clients");
+    if (!res.ok) throw new Error("Erreur lors du chargement des clients");
+    setClients(await res.json());
+  } catch (err: unknown) {
+    // Optionnel : tu peux afficher une alerte ici
+    setClients([]); // en cas d’erreur, vider
+  }
+};
 
-  const fetchRequests = async () => {
-    try {
-      const res = await fetch("/api/admin/requests");
-      if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
-      setRequests(await res.json());
-    } catch (e: any) {
-      setRequests([]);
-    }
-  };
+const fetchRequests = async () => {
+  try {
+    const res = await fetch("/api/admin/requests");
+    if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
+    setRequests(await res.json());
+  } catch (err: unknown) {
+    setRequests([]);
+  }
+};
 
-  const fetchRegisters = async () => {
-    try {
-      const res = await fetch("/api/admin/registers");
-      if (!res.ok) throw new Error("Erreur lors du chargement des registers");
-      setRegisters(await res.json());
-    } catch (e: any) {
-      setRegisters([]);
-    }
-  };
+const fetchRegisters = async () => {
+  try {
+    const res = await fetch("/api/admin/registers");
+    if (!res.ok) throw new Error("Erreur lors du chargement des registers");
+    setRegisters(await res.json());
+  } catch (err: unknown) {
+    setRegisters([]);
+  }
+};
+
 
   // FILTRES
   function filterData<T extends Record<string, unknown>>(list: T[], search: string): T[] {
@@ -140,24 +142,25 @@ export default function AdminDashboardPage() {
   function renderRegisterForm() {
     return (
       <form
-        onSubmit={async e => {
-          e.preventDefault();
-          setRegisterSuccess(false);
-          setRegisterError("");
-          try {
-            const res = await fetch("/api/admin/registers", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(registerForm)
-            });
-            if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-            setRegisterSuccess(true);
-            setRegisterForm(INIT_REGISTER);
-            fetchRegisters(); // recharger
-          } catch (e: any) {
-            setRegisterError(e.message || "Erreur inconnue");
-          }
-        }}
+          onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setRegisterSuccess(false);
+    setRegisterError("");
+    try {
+      const res = await fetch("/api/admin/registers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(registerForm)
+      });
+      if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+      setRegisterSuccess(true);
+      setRegisterForm(INIT_REGISTER);
+      fetchRegisters(); // recharger
+    } catch (err: unknown) {
+      if (err instanceof Error) setRegisterError(err.message || "Erreur inconnue");
+      else setRegisterError("Erreur inconnue");
+    }
+  }}
         style={{
           background: "#f6fbff",
           border: "1px solid #c6e4ff",
