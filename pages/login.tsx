@@ -20,44 +20,65 @@ export default function Login() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSubmitted(false);
+  e.preventDefault();
+  setError("");
+  setSubmitted(false);
 
-    if (!form.identifier || !form.password) {
-      setError("Please fill in all fields.");
+  if (!form.identifier || !form.password) {
+    setError("Please fill in all fields.");
+    return;
+  }
+
+  if (!API_URL) {
+    setError("API URL not configured.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    // Si la réponse n'est pas OK (404, 500…), essaie de lire le message d'erreur
+    if (!res.ok) {
+      let errorMsg = `Login failed. (${res.status})`;
+      try {
+        const errorData = await res.json();
+        errorMsg = errorData.error || errorMsg;
+      } catch {
+        // Pas de JSON (erreur serveur brute)
+      }
+      setError(errorMsg);
       return;
     }
-    try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
 
-      if (res.ok && (data.ok || data.token || data.userId)) {
-        setSubmitted(true);
+    const data = await res.json();
 
-        // Stocke userId et role si disponibles
-        if (data.userId) localStorage.setItem("userId", data.userId);
-        if (data.role) localStorage.setItem("role", data.role);
+    if (data.ok || data.token || data.userId) {
+      setSubmitted(true);
+      // Stocke userId et role si disponibles
+      if (data.userId) localStorage.setItem("userId", data.userId);
+      if (data.role) localStorage.setItem("role", data.role);
 
-        // Redirige selon le rôle : admin => admin-help-requests, sinon help-request
-        setTimeout(() => {
-          if (data.role === "admin") {
-            router.push("/admin-help-requests");
-          } else {
-            router.push("/help-request");
-          }
-        }, 1200); // 1.2s de délai pour laisser voir le message
-      } else {
-        setError(data.error || "Login failed. Check your credentials.");
-      }
-    } catch {
-      setError("Network error. Please try again.");
+      // Redirige selon le rôle : admin => admin-help-requests, sinon help-request
+      setTimeout(() => {
+        if (data.role === "admin") {
+          router.push("/admin-help-requests");
+        } else {
+          router.push("/help-request");
+        }
+      }, 1200);
+    } else {
+      setError(data.error || "Login failed. Check your credentials.");
     }
-  };
+  } catch (err) {
+    console.error("Login network error:", err);
+    setError("Network error. Please try again.");
+  }
+};
+
 
   return (
     <>
