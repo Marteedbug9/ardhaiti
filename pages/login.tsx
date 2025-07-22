@@ -13,7 +13,7 @@ export default function Login() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
