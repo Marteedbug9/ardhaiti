@@ -3,7 +3,7 @@ const nextConfig = {
   i18n: {
     locales: ['en', 'fr', 'ht', 'es'],
     defaultLocale: 'en',
-    localeDetection: true, // ✅ boolean (true ou false)
+    localeDetection: false, // ou true, mais doit être un booléen (et non une string)
   },
 };
 

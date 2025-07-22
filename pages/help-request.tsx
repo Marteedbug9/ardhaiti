@@ -19,7 +19,7 @@ interface HelpRequest {
   createdAt: string;
   updatedAt: string;
 }
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function HelpRequestPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [notice, setNotice] = useState("");
@@ -47,38 +47,37 @@ export default function HelpRequestPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setNotice("");
-    if (selected.length === 0) {
-      setNotice("Please select at least one service.");
-      return;
-    }
-    try {
-      // Tu dois transmettre aussi l’userId côté backend
-      const userId = localStorage.getItem("userId");
-      await fetch("/api/help/request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ services: selected, userId }),
-      });
-      setNotice("Your request has been sent successfully!");
-      setHistory(old =>
-        [
-          ...old,
-          ...selected.map((service, i) => ({
-            id: old.length + i + 1,
-            service,
-            status: "Pending",
-            createdAt: new Date().toISOString().split("T")[0],
-            updatedAt: new Date().toISOString().split("T")[0],
-          }))
-        ]
-      );
-      setSelected([]);
-    } catch {
-      setNotice("An error occurred, please try again.");
-    }
-  };
+  e.preventDefault();
+  setNotice("");
+  if (selected.length === 0) {
+    setNotice("Please select at least one service.");
+    return;
+  }
+  try {
+    const userId = localStorage.getItem("userId");
+    await fetch(`${API_URL}/help/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ services: selected, userId }),
+    });
+    setNotice("Your request has been sent successfully!");
+    setHistory(old =>
+      [
+        ...old,
+        ...selected.map((service, i) => ({
+          id: old.length + i + 1,
+          service,
+          status: "Pending",
+          createdAt: new Date().toISOString().split("T")[0],
+          updatedAt: new Date().toISOString().split("T")[0],
+        }))
+      ]
+    );
+    setSelected([]);
+  } catch {
+    setNotice("An error occurred, please try again.");
+  }
+};
 
   const usedServices = history.map(h => h.service);
   const availableServices = SERVICE_LIST.filter(s => !usedServices.includes(s));

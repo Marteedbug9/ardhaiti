@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
+// Types/interfaces identiques à ta version
 interface HumanitarianProjectForm {
   name: string;
   peopleCount: number;
@@ -14,7 +15,6 @@ interface HumanitarianProjectForm {
   description: string;
   notes: string;
 }
-
 interface HumanitarianProject {
   id: number;
   name: string;
@@ -43,6 +43,8 @@ const INIT_STATE: HumanitarianProjectForm = {
   notes: "",
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function HumanitarianProjectsPage() {
   const [form, setForm] = useState<HumanitarianProjectForm>(INIT_STATE);
   const [projects, setProjects] = useState<HumanitarianProject[]>([]);
@@ -50,64 +52,64 @@ export default function HumanitarianProjectsPage() {
   const [error, setError] = useState("");
   const numberFields = ["peopleCount", "workforceCount", "expenses"];
 
-  useEffect(() => {
-    fetchProjects();
+  const fetchProjects = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/humanitarian-projects`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des projets");
+      const data: HumanitarianProject[] = await res.json();
+      setProjects(data);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || "Erreur inconnue lors du chargement");
+      } else {
+        setError("Erreur inconnue lors du chargement");
+      }
+    }
   }, []);
 
-const fetchProjects = async (): Promise<void> => {
-  try {
-    const res = await fetch("/api/admin/humanitarian-projects");
-    if (!res.ok) throw new Error("Erreur lors du chargement des projets");
-    const data: HumanitarianProject[] = await res.json();
-    setProjects(data);
-  } catch (err) {
-    if (err instanceof Error) {
-      setError(err.message || "Erreur inconnue lors du chargement");
-    } else {
-      setError("Erreur inconnue lors du chargement");
-    }
-  }
-};
-
-const handleChange: React.ChangeEventHandler<
-  HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-> = (e) => {
-  const { name, value } = e.target;
-  if (numberFields.includes(name)) {
-    setForm((f) => ({
-      ...f,
-      [name]: value === "" ? "" : Number(value)
-    }));
-  } else {
-    setForm((f) => ({
-      ...f,
-      [name]: value
-    }));
-  }
-};
-
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-  e.preventDefault();
-  setSuccess(false);
-  setError("");
-  try {
-    const res = await fetch("/api/admin/humanitarian-projects", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
-    if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-    setSuccess(true);
-    setForm(INIT_STATE);
+  useEffect(() => {
     fetchProjects();
-  } catch (err) {
-    if (err instanceof Error) {
-      setError(err.message || "Erreur inconnue");
+  }, [fetchProjects]);
+
+  const handleChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+  > = (e) => {
+    const { name, value } = e.target;
+    if (numberFields.includes(name)) {
+      setForm((f) => ({
+        ...f,
+        [name]: value === "" ? "" : Number(value)
+      }));
     } else {
-      setError("Erreur inconnue");
+      setForm((f) => ({
+        ...f,
+        [name]: value
+      }));
     }
-  }
-};
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    setSuccess(false);
+    setError("");
+    try {
+      const res = await fetch(`${API_URL}/api/admin/humanitarian-projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+      if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+      setSuccess(true);
+      setForm(INIT_STATE);
+      fetchProjects();
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || "Erreur inconnue");
+      } else {
+        setError("Erreur inconnue");
+      }
+    }
+  };
 
 
   return (

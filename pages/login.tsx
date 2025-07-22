@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function Login() {
   const [form, setForm] = useState({
     identifier: "",
@@ -11,6 +13,7 @@ export default function Login() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,7 +29,7 @@ export default function Login() {
       return;
     }
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

@@ -78,6 +78,8 @@ const INIT_REGISTER: Register = {
   document: "",
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState("Client");
   const [clients, setClients] = useState<Client[]>([]);
@@ -88,46 +90,44 @@ export default function AdminDashboardPage() {
   const [registerError, setRegisterError] = useState("");
   const [search, setSearch] = useState("");
 
-  // Charger data au chargement de la page
   useEffect(() => {
     fetchClients();
     fetchRequests();
     fetchRegisters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
- const fetchClients = async () => {
-  try {
-    const res = await fetch("/api/admin/clients");
-    if (!res.ok) throw new Error("Erreur lors du chargement des clients");
-    setClients(await res.json());
-  } catch (err: unknown) {
-    // Optionnel : tu peux afficher une alerte ici
-    setClients([]); // en cas d’erreur, vider
-  }
-};
+  const fetchClients = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/clients`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des clients");
+      setClients(await res.json());
+    } catch (err: unknown) {
+      setClients([]);
+    }
+  };
 
-const fetchRequests = async () => {
-  try {
-    const res = await fetch("/api/admin/requests");
-    if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
-    setRequests(await res.json());
-  } catch (err: unknown) {
-    setRequests([]);
-  }
-};
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/requests`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
+      setRequests(await res.json());
+    } catch (err: unknown) {
+      setRequests([]);
+    }
+  };
 
-const fetchRegisters = async () => {
-  try {
-    const res = await fetch("/api/admin/registers");
-    if (!res.ok) throw new Error("Erreur lors du chargement des registers");
-    setRegisters(await res.json());
-  } catch (err: unknown) {
-    setRegisters([]);
-  }
-};
+  const fetchRegisters = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/registers`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des registers");
+      setRegisters(await res.json());
+    } catch (err: unknown) {
+      setRegisters([]);
+    }
+  };
 
-
-  // FILTRES
+  // ---- Filtre
   function filterData<T extends Record<string, unknown>>(list: T[], search: string): T[] {
     if (!search) return list;
     const s = search.toLowerCase();
@@ -138,29 +138,30 @@ const fetchRegisters = async () => {
     );
   }
 
-  // FORMULAIRE AJOUT REGISTER
+  // ---- Formulaire d'ajout register (admin → users)
   function renderRegisterForm() {
     return (
       <form
-          onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setRegisterSuccess(false);
-    setRegisterError("");
-    try {
-      const res = await fetch("/api/admin/registers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registerForm)
-      });
-      if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-      setRegisterSuccess(true);
-      setRegisterForm(INIT_REGISTER);
-      fetchRegisters(); // recharger
-    } catch (err: unknown) {
-      if (err instanceof Error) setRegisterError(err.message || "Erreur inconnue");
-      else setRegisterError("Erreur inconnue");
-    }
-  }}
+        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+          e.preventDefault();
+          setRegisterSuccess(false);
+          setRegisterError("");
+          try {
+            const res = await fetch(`${API_URL}/api/admin/registers`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(registerForm)
+            });
+            if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+            setRegisterSuccess(true);
+            setRegisterForm(INIT_REGISTER);
+            fetchRegisters();
+            fetchClients();
+          } catch (err: unknown) {
+            if (err instanceof Error) setRegisterError(err.message || "Erreur inconnue");
+            else setRegisterError("Erreur inconnue");
+          }
+        }}
         style={{
           background: "#f6fbff",
           border: "1px solid #c6e4ff",
@@ -274,203 +275,168 @@ const fetchRegisters = async () => {
     );
   }
 
-  // ... fonctions renderClientTable, renderRequestTable, renderRegisterTable identiques à ta version précédente
-// Pour la liste des clients
-function renderClientTable() {
-  const list = filterData(clients, search);
-  return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "separate",
-        borderSpacing: 0,
-        background: "#fafdff",
-        borderRadius: 13,
-        overflow: "hidden",
-        boxShadow: "0 2px 12px #00408009"
-      }}
-    >
-      <thead>
-        <tr style={{ background: "#1671b8", color: "#fff" }}>
-          <th style={{ padding: 10 }}>Sexe</th>
-          <th style={{ padding: 10 }}>Status</th>
-          <th style={{ padding: 10 }}>First Name</th>
-          <th style={{ padding: 10 }}>Last Name</th>
-          <th style={{ padding: 10 }}>Email</th>
-          <th style={{ padding: 10 }}>Phone</th>
-          <th style={{ padding: 10 }}>Address</th>
-          <th style={{ padding: 10 }}>City</th>
-          <th style={{ padding: 10 }}>State</th>
-          <th style={{ padding: 10 }}>Zipcode</th>
-          <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
-          <th style={{ padding: 10 }}>Confirm</th>
-        </tr>
-      </thead>
-      <tbody>
-        {list.length === 0 ? (
-          <tr>
-            <td colSpan={12} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>
-              No results
-            </td>
+  // ---- Rendus des tableaux ----
+  function renderClientTable() {
+    const list = filterData(clients, search);
+    return (
+      <table style={tableStyle}>
+        <thead>
+          <tr style={theadStyle}>
+            <th style={thStyle}>Sexe</th>
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>First Name</th>
+            <th style={thStyle}>Last Name</th>
+            <th style={thStyle}>Email</th>
+            <th style={thStyle}>Phone</th>
+            <th style={thStyle}>Address</th>
+            <th style={thStyle}>City</th>
+            <th style={thStyle}>State</th>
+            <th style={thStyle}>Zipcode</th>
+            <th style={thStyle}>Birth (Y/M/D)</th>
+            <th style={thStyle}>Confirm</th>
           </tr>
-        ) : (
-          list.map((c, idx) => (
-            <tr
-              key={String(c.id)}
-              style={{
-                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-            >
-              <td style={{ padding: 8 }}>{c.sexe as string}</td>
-              <td style={{ padding: 8 }}>{c.status as string}</td>
-              <td style={{ padding: 8 }}>{c.firstName as string}</td>
-              <td style={{ padding: 8 }}>{c.lastName as string}</td>
-              <td style={{ padding: 8 }}>{c.email as string}</td>
-              <td style={{ padding: 8 }}>{c.phone as string}</td>
-              <td style={{ padding: 8 }}>{c.address as string}</td>
-              <td style={{ padding: 8 }}>{c.city as string}</td>
-              <td style={{ padding: 8 }}>{c.state as string}</td>
-              <td style={{ padding: 8 }}>{c.zipcode as string}</td>
-              <td style={{ padding: 8 }}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
-              <td style={{ padding: 8, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr>
+              <td colSpan={12} style={noResultStyle}>No results</td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  );
-}
+          ) : (
+            list.map((c, idx) => (
+              <tr
+                key={String(c.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={tdStyle}>{c.sexe as string}</td>
+                <td style={tdStyle}>{c.status as string}</td>
+                <td style={tdStyle}>{c.firstName as string}</td>
+                <td style={tdStyle}>{c.lastName as string}</td>
+                <td style={tdStyle}>{c.email as string}</td>
+                <td style={tdStyle}>{c.phone as string}</td>
+                <td style={tdStyle}>{c.address as string}</td>
+                <td style={tdStyle}>{c.city as string}</td>
+                <td style={tdStyle}>{c.state as string}</td>
+                <td style={tdStyle}>{c.zipcode as string}</td>
+                <td style={tdStyle}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
 
-// Pour la liste des demandes d'aide
-function renderRequestTable() {
-  const list = filterData(requests, search);
-  return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "separate",
-        borderSpacing: 0,
-        background: "#fafdff",
-        borderRadius: 13,
-        overflow: "hidden",
-        boxShadow: "0 2px 12px #00408009"
-      }}
-    >
-      <thead>
-        <tr style={{ background: "#1671b8", color: "#fff" }}>
-          <th style={{ padding: 10 }}>User</th>
-          <th style={{ padding: 10 }}>Sexe</th>
-          <th style={{ padding: 10 }}>State</th>
-          <th style={{ padding: 10 }}>City</th>
-          <th style={{ padding: 10 }}>Service</th>
-          <th style={{ padding: 10 }}>Status</th>
-          <th style={{ padding: 10 }}>Sent At</th>
-          <th style={{ padding: 10 }}>Last Update</th>
-        </tr>
-      </thead>
-      <tbody>
-        {list.length === 0 ? (
-          <tr>
-            <td colSpan={8} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>
-              No results
-            </td>
+  function renderRequestTable() {
+    const list = filterData(requests, search);
+    return (
+      <table style={tableStyle}>
+        <thead>
+          <tr style={theadStyle}>
+            <th style={thStyle}>User</th>
+            <th style={thStyle}>Sexe</th>
+            <th style={thStyle}>State</th>
+            <th style={thStyle}>City</th>
+            <th style={thStyle}>Service</th>
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>Sent At</th>
+            <th style={thStyle}>Last Update</th>
           </tr>
-        ) : (
-          list.map((r, idx) => (
-            <tr
-              key={String(r.id)}
-              style={{
-                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-            >
-              <td style={{ padding: 8 }}>{(r.user_name as string) || (r.user_id as number)}</td>
-              <td style={{ padding: 8 }}>{r.sexe as string}</td>
-              <td style={{ padding: 8 }}>{r.state as string}</td>
-              <td style={{ padding: 8 }}>{r.city as string}</td>
-              <td style={{ padding: 8 }}>{r.service as string}</td>
-              <td style={{ padding: 8 }}>{r.status as string}</td>
-              <td style={{ padding: 8 }}>{r.createdAt as string}</td>
-              <td style={{ padding: 8 }}>{r.updatedAt as string}</td>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr>
+              <td colSpan={8} style={noResultStyle}>No results</td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  );
-}
-function renderRegisterTable() {
-  const list = filterData(registers, search);
-  return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "separate",
-        borderSpacing: 0,
-        background: "#fafdff",
-        borderRadius: 13,
-        overflow: "hidden",
-        boxShadow: "0 2px 12px #00408009"
-      }}
-    >
-      <thead>
-        <tr style={{ background: "#1671b8", color: "#fff" }}>
-          <th style={{ padding: 10 }}>Sexe</th>
-          <th style={{ padding: 10 }}>Status</th>
-          <th style={{ padding: 10 }}>First Name</th>
-          <th style={{ padding: 10 }}>Last Name</th>
-          <th style={{ padding: 10 }}>Email</th>
-          <th style={{ padding: 10 }}>Phone</th>
-          <th style={{ padding: 10 }}>Address</th>
-          <th style={{ padding: 10 }}>City</th>
-          <th style={{ padding: 10 }}>State</th>
-          <th style={{ padding: 10 }}>Zipcode</th>
-          <th style={{ padding: 10 }}>Birth (Y/M/D)</th>
-          <th style={{ padding: 10 }}>Confirm</th>
-          <th style={{ padding: 10 }}>Document</th>
-        </tr>
-      </thead>
-      <tbody>
-        {list.length === 0 ? (
-          <tr>
-            <td colSpan={13} style={{ textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 }}>No results</td>
+          ) : (
+            list.map((r, idx) => (
+              <tr
+                key={String(r.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={tdStyle}>{(r.user_name as string) || (r.user_id as number)}</td>
+                <td style={tdStyle}>{r.sexe as string}</td>
+                <td style={tdStyle}>{r.state as string}</td>
+                <td style={tdStyle}>{r.city as string}</td>
+                <td style={tdStyle}>{r.service as string}</td>
+                <td style={tdStyle}>{r.status as string}</td>
+                <td style={tdStyle}>{r.createdAt as string}</td>
+                <td style={tdStyle}>{r.updatedAt as string}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
+
+  function renderRegisterTable() {
+    const list = filterData(registers, search);
+    return (
+      <table style={tableStyle}>
+        <thead>
+          <tr style={theadStyle}>
+            <th style={thStyle}>Sexe</th>
+            <th style={thStyle}>Status</th>
+            <th style={thStyle}>First Name</th>
+            <th style={thStyle}>Last Name</th>
+            <th style={thStyle}>Email</th>
+            <th style={thStyle}>Phone</th>
+            <th style={thStyle}>Address</th>
+            <th style={thStyle}>City</th>
+            <th style={thStyle}>State</th>
+            <th style={thStyle}>Zipcode</th>
+            <th style={thStyle}>Birth (Y/M/D)</th>
+            <th style={thStyle}>Confirm</th>
+            <th style={thStyle}>Document</th>
           </tr>
-        ) : (
-          list.map((r, idx) => (
-            <tr
-              key={String(r.id)}
-              style={{
-                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-            >
-              <td style={{ padding: 8 }}>{r.sexe as string}</td>
-              <td style={{ padding: 8 }}>{r.status as string}</td>
-              <td style={{ padding: 8 }}>{r.firstName as string}</td>
-              <td style={{ padding: 8 }}>{r.lastName as string}</td>
-              <td style={{ padding: 8 }}>{r.email as string}</td>
-              <td style={{ padding: 8 }}>{r.phone as string}</td>
-              <td style={{ padding: 8 }}>{r.address as string}</td>
-              <td style={{ padding: 8 }}>{r.city as string}</td>
-              <td style={{ padding: 8 }}>{r.state as string}</td>
-              <td style={{ padding: 8 }}>{r.zipcode as string}</td>
-              <td style={{ padding: 8 }}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
-              <td style={{ padding: 8, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
-              <td style={{ padding: 8 }}>{r.document as string}</td>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr>
+              <td colSpan={13} style={noResultStyle}>No results</td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  );
-}
+          ) : (
+            list.map((r, idx) => (
+              <tr
+                key={String(r.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={tdStyle}>{r.sexe as string}</td>
+                <td style={tdStyle}>{r.status as string}</td>
+                <td style={tdStyle}>{r.firstName as string}</td>
+                <td style={tdStyle}>{r.lastName as string}</td>
+                <td style={tdStyle}>{r.email as string}</td>
+                <td style={tdStyle}>{r.phone as string}</td>
+                <td style={tdStyle}>{r.address as string}</td>
+                <td style={tdStyle}>{r.city as string}</td>
+                <td style={tdStyle}>{r.state as string}</td>
+                <td style={tdStyle}>{r.zipcode as string}</td>
+                <td style={tdStyle}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
+                <td style={tdStyle}>{r.document as string}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    );
+  }
 
   // ------ UI ------
   return (
@@ -508,11 +474,15 @@ function renderRegisterTable() {
             />
           </div>
           <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
-         {tab === "Client" && renderClientTable()}
-        {tab === "Request" && renderRequestTable()}
-       {tab === "Register" && renderRegisterTable()}
-        </div>
-
+            {tab === "Client" && renderClientTable()}
+            {tab === "Request" && renderRequestTable()}
+            {tab === "Register" && (
+              <>
+                {renderRegisterForm()}
+                {renderRegisterTable()}
+              </>
+            )}
+          </div>
         </div>
       </main>
       <Footer />
@@ -520,7 +490,7 @@ function renderRegisterTable() {
   );
 }
 
-// Style input partagé
+// --- Styles partagés ---
 const inputStyle: React.CSSProperties = {
   width: "100%",
   marginTop: 3,
@@ -532,3 +502,17 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
   background: "#f8fbfe"
 };
+const tableStyle: React.CSSProperties = {
+  width: "100%",
+  borderCollapse: "separate",
+  borderSpacing: 0,
+  background: "#fafdff",
+  borderRadius: 13,
+  overflow: "hidden",
+  boxShadow: "0 2px 12px #00408009"
+};
+const theadStyle: React.CSSProperties = { background: "#1671b8", color: "#fff" };
+const thStyle: React.CSSProperties = { padding: 10 };
+const tdStyle: React.CSSProperties = { padding: 8 };
+const noResultStyle: React.CSSProperties = { textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 };
+

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
@@ -40,20 +40,17 @@ const INIT_STATE: ContactFormState = {
   note: "",
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function AdminProfessionalContactsPage() {
   const [form, setForm] = useState<ContactFormState>(INIT_STATE);
   const [contacts, setContacts] = useState<ProContact[]>([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchContacts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/professional-contacts");
+      const res = await fetch(`${API_URL}/api/admin/professional-contacts`);
       if (!res.ok) throw new Error("Erreur lors du chargement des contacts");
       const data: ProContact[] = await res.json();
       setContacts(data);
@@ -64,7 +61,11 @@ export default function AdminProfessionalContactsPage() {
         setError("Erreur inconnue lors du chargement");
       }
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -75,7 +76,7 @@ export default function AdminProfessionalContactsPage() {
     setSuccess(false);
     setError("");
     try {
-      const res = await fetch("/api/admin/professional-contacts", {
+      const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
@@ -92,7 +93,6 @@ export default function AdminProfessionalContactsPage() {
       }
     }
   };
-
   return (
     <>
       <Navbar />

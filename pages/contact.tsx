@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function Contact() {
   const [form, setForm] = useState({
     firstName: '',
@@ -14,57 +15,58 @@ export default function Contact() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSubmitted(false);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  setSubmitted(false);
 
-    // Validation simple avant envoi
-    if (
-      !form.firstName.trim() ||
-      !form.lastName.trim() ||
-      !form.email.trim() ||
-      !form.subject.trim() ||
-      !form.message.trim()
-    ) {
-      setError('All fields are required.');
-      return;
-    }
-    if (!form.email.includes('@')) {
-      setError('A valid email is required.');
-      return;
-    }
+  // Validation simple avant envoi
+  if (
+    !form.firstName.trim() ||
+    !form.lastName.trim() ||
+    !form.email.trim() ||
+    !form.subject.trim() ||
+    !form.message.trim()
+  ) {
+    setError('All fields are required.');
+    return;
+  }
+  if (!form.email.includes('@')) {
+    setError('A valid email is required.');
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
+  try {
+    const res = await fetch(`${API_URL}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form)
+    });
+    if (res.ok) {
+      setSubmitted(true);
+      setForm({
+        firstName: '',
+        lastName: '',
+        email: '',
+        subject: '',
+        message: ''
       });
-      if (res.ok) {
-        setSubmitted(true);
-        setForm({
-          firstName: '',
-          lastName: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        const data = await res.json();
-        setError(data.error || 'An error occurred. Please try again.');
-      }
-    } catch (err) {
-      setError('Network error. Please try again later.');
+    } else {
+      const data = await res.json();
+      setError(data.error || 'An error occurred. Please try again.');
     }
-    setLoading(false);
-  };
+  } catch (err) {
+    setError('Network error. Please try again later.');
+  }
+  setLoading(false);
+};
 
   return (
     <>

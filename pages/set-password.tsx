@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function SetPasswordPage() {
   const router = useRouter();
   const { token } = router.query;
@@ -12,44 +13,45 @@ export default function SetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setSuccess(false);
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
 
-  if (!token || typeof token !== "string") {
-    setError("Lien invalide ou expiré.");
-    return;
-  }
-  if (!password || password.length < 8) {
-    setError("Le mot de passe doit contenir au moins 8 caractères.");
-    return;
-  }
-  if (password !== confirmPassword) {
-    setError("Les mots de passe ne correspondent pas.");
-    return;
-  }
+    if (!token || typeof token !== "string") {
+      setError("Lien invalide ou expiré.");
+      return;
+    }
+    if (!password || password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
 
-  setLoading(true);
-  try {
-    const res = await fetch("/api/admin/users/set-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password, confirmPassword })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Erreur inconnue");
-    setSuccess(true);
-    setPassword("");
-    setConfirmPassword("");
-  } catch (err: unknown) {
-    if (err instanceof Error) setError(err.message || "Erreur inconnue");
-    else setError("Erreur inconnue");
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/admin/users/set-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password, confirmPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur inconnue");
+      setSuccess(true);
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message || "Erreur inconnue");
+      else setError("Erreur inconnue");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
