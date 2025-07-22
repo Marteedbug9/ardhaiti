@@ -116,13 +116,13 @@ export default function HumanitarianProjectsPage() {
       <main style={{ background: "#f7fafc", minHeight: "100vh", color: "#111" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "46px 16px" }}>
           <h1 style={{
-            fontSize: "2rem", fontWeight: 800, color: "#111",
+            fontSize: "2rem", fontWeight: 800, color: "#135ba733",
             marginBottom: 28, textAlign: "center", letterSpacing: 1
           }}>
             Projets d’aide humanitaire
           </h1>
 
-          <h2 style={{ color: "#111", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
+          <h2 style={{ color: "#135ba733", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
             Ajouter un nouveau projet
           </h2>
           <form
@@ -141,7 +141,7 @@ export default function HumanitarianProjectsPage() {
           >
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 2 }}>
-                <label style={{ color: "#111" }}>Nom du projet *</label>
+                <label style={{ color: "#135ba733" }}>Nom du projet *</label>
                 <input
                   required name="name" value={form.name} onChange={handleChange}
                   style={inputStyle}
@@ -149,7 +149,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Statut *</label>
+                <label style={{ color: "#135ba733" }}>Statut *</label>
                 <select
                   required name="status" value={form.status} onChange={handleChange}
                   style={inputStyle}
@@ -164,7 +164,7 @@ export default function HumanitarianProjectsPage() {
 
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Personnes aidées *</label>
+                <label style={{ color: "#135ba733" }}>Personnes aidées *</label>
                 <input
                   required type="number" min={0}
                   name="peopleCount" value={form.peopleCount}
@@ -174,7 +174,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Aide Humaine *</label>
+                <label style={{ color: "#135ba733" }}>Aide Humaine *</label>
                 <input
                   required type="number" min={0}
                   name="workforceCount" value={form.workforceCount}
@@ -184,7 +184,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Dépenses ($) *</label>
+                <label style={{ color: "#135ba733" }}>Dépenses ($) *</label>
                 <input
                   required type="number" min={0}
                   name="expenses" value={form.expenses}
@@ -197,7 +197,7 @@ export default function HumanitarianProjectsPage() {
 
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Type de bénéficiaire *</label>
+                <label style={{ color: "#135ba733" }}>Type de bénéficiaire *</label>
                 <select
                   required name="beneficiaryType" value={form.beneficiaryType} onChange={handleChange}
                   style={inputStyle}
@@ -212,7 +212,7 @@ export default function HumanitarianProjectsPage() {
                 </select>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Date de début *</label>
+                <label style={{ color: "#135ba733" }}>Date de début *</label>
                 <input
                   required name="startDate" type="date" value={form.startDate}
                   onChange={handleChange}
@@ -220,7 +220,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ color: "#111" }}>Date de fin *</label>
+                <label style={{ color: "#135ba733" }}>Date de fin *</label>
                 <input
                   required name="endDate" type="date" value={form.endDate}
                   onChange={handleChange}
@@ -229,7 +229,7 @@ export default function HumanitarianProjectsPage() {
               </div>
             </div>
             <div>
-              <label style={{ color: "#111" }}>Description *</label>
+              <label style={{ color: "#135ba733" }}>Description *</label>
               <textarea
                 required
                 name="description"
@@ -240,12 +240,12 @@ export default function HumanitarianProjectsPage() {
               />
             </div>
             <div>
-              <label style={{ color: "#111" }}>Notes</label>
+              <label style={{ color: "#135ba733" }}>Notes</label>
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 40, resize: "vertical", color: "#111" }}
+                style={{ ...inputStyle, minHeight: 40, resize: "vertical", color: "#135ba733" }}
                 placeholder="Notes additionnelles"
               />
             </div>
