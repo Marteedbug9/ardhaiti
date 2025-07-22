@@ -85,27 +85,40 @@ export default function AdminProfessionalContactsPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSuccess(false);
-    setError("");
-    try {
-      const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(mapFormToSQL(form))
-      });
-      if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-      setSuccess(true);
-      setForm(INIT_STATE);
-      fetchContacts();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erreur inconnue");
-      }
-    }
+  e.preventDefault();
+  setSuccess(false);
+  setError("");
+  const payload = {
+    businessName: form.businessName,
+    businessType: form.businessType,
+    firstName: form.firstName,
+    lastName: form.lastName,
+    jobTitle: form.jobTitle,
+    phone: form.phone,
+    email: form.email,
+    address: form.address,
+    note: form.note,
   };
+  try {
+    const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+    setSuccess(true);
+    setForm(INIT_STATE);
+    fetchContacts();
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      setError(err.message);
+    } else {
+      setError("Erreur inconnue");
+    }
+  }
+};
+
+
   return (
     <>
       <Navbar />
