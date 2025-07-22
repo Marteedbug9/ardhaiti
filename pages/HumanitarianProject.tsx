@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
-// Types/interfaces identiques à ta version
 interface HumanitarianProjectForm {
   name: string;
   peopleCount: number;
@@ -114,35 +113,35 @@ export default function HumanitarianProjectsPage() {
   return (
     <>
       <Navbar />
-      <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
+      <main style={{ background: "#f7fafc", minHeight: "100vh", color: "#111" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "46px 16px" }}>
           <h1 style={{
-            fontSize: "2rem", fontWeight: 800, color: "#1976d2",
+            fontSize: "2rem", fontWeight: 800, color: "#111",
             marginBottom: 28, textAlign: "center", letterSpacing: 1
           }}>
             Projets d’aide humanitaire
           </h1>
 
-          <h2 style={{ color: "#1976d2", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
+          <h2 style={{ color: "#111", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
             Ajouter un nouveau projet
           </h2>
-          {/* FORMULAIRE */}
           <form
             onSubmit={handleSubmit}
             style={{
               background: "#fff",
               borderRadius: 14,
-              boxShadow: "0 4px 18px #135ba712",
+              boxShadow: "0 4px 18px #aaa2",
               padding: 30,
               marginBottom: 40,
               display: "flex",
               flexDirection: "column",
-              gap: 16
+              gap: 16,
+              color: "#111"
             }}
           >
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 2 }}>
-                <label>Nom du projet *</label>
+                <label style={{ color: "#111" }}>Nom du projet *</label>
                 <input
                   required name="name" value={form.name} onChange={handleChange}
                   style={inputStyle}
@@ -150,7 +149,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Statut *</label>
+                <label style={{ color: "#111" }}>Statut *</label>
                 <select
                   required name="status" value={form.status} onChange={handleChange}
                   style={inputStyle}
@@ -165,7 +164,7 @@ export default function HumanitarianProjectsPage() {
 
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <label>Personnes aidées *</label>
+                <label style={{ color: "#111" }}>Personnes aidées *</label>
                 <input
                   required type="number" min={0}
                   name="peopleCount" value={form.peopleCount}
@@ -175,7 +174,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Aide Humaine *</label>
+                <label style={{ color: "#111" }}>Aide Humaine *</label>
                 <input
                   required type="number" min={0}
                   name="workforceCount" value={form.workforceCount}
@@ -185,7 +184,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Dépenses ($) *</label>
+                <label style={{ color: "#111" }}>Dépenses ($) *</label>
                 <input
                   required type="number" min={0}
                   name="expenses" value={form.expenses}
@@ -198,7 +197,7 @@ export default function HumanitarianProjectsPage() {
 
             <div style={{ display: "flex", gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <label>Type de bénéficiaire *</label>
+                <label style={{ color: "#111" }}>Type de bénéficiaire *</label>
                 <select
                   required name="beneficiaryType" value={form.beneficiaryType} onChange={handleChange}
                   style={inputStyle}
@@ -213,7 +212,7 @@ export default function HumanitarianProjectsPage() {
                 </select>
               </div>
               <div style={{ flex: 1 }}>
-                <label>Date de début *</label>
+                <label style={{ color: "#111" }}>Date de début *</label>
                 <input
                   required name="startDate" type="date" value={form.startDate}
                   onChange={handleChange}
@@ -221,7 +220,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Date de fin *</label>
+                <label style={{ color: "#111" }}>Date de fin *</label>
                 <input
                   required name="endDate" type="date" value={form.endDate}
                   onChange={handleChange}
@@ -230,23 +229,23 @@ export default function HumanitarianProjectsPage() {
               </div>
             </div>
             <div>
-              <label>Description *</label>
+              <label style={{ color: "#111" }}>Description *</label>
               <textarea
                 required
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 60, resize: "vertical" }}
+                style={{ ...inputStyle, minHeight: 60, resize: "vertical", color: "#111" }}
                 placeholder="Brève description du projet, objectifs, modalités, etc."
               />
             </div>
             <div>
-              <label>Notes</label>
+              <label style={{ color: "#111" }}>Notes</label>
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 40, resize: "vertical" }}
+                style={{ ...inputStyle, minHeight: 40, resize: "vertical", color: "#111" }}
                 placeholder="Notes additionnelles"
               />
             </div>
@@ -254,7 +253,7 @@ export default function HumanitarianProjectsPage() {
             <button
               type="submit"
               style={{
-                background: "#1976d2",
+                background: "#111",
                 color: "#fff",
                 fontWeight: 700,
                 fontSize: 17,
@@ -262,12 +261,12 @@ export default function HumanitarianProjectsPage() {
                 borderRadius: 8,
                 padding: "12px 0",
                 marginTop: 10,
-                boxShadow: "0 2px 8px #135ba733",
+                boxShadow: "0 2px 8px #3335",
                 cursor: "pointer",
                 transition: "background .15s"
               }}
-              onMouseOver={e => (e.currentTarget.style.background = "#12599e")}
-              onMouseOut={e => (e.currentTarget.style.background = "#1976d2")}
+              onMouseOver={e => (e.currentTarget.style.background = "#333")}
+              onMouseOut={e => (e.currentTarget.style.background = "#111")}
             >
               Enregistrer
             </button>
@@ -291,8 +290,8 @@ export default function HumanitarianProjectsPage() {
           </form>
 
           {/* TABLEAU DES PROJETS */}
-          <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
-            <h2 style={{ margin: "0 0 10px 0", color: "#1976d2", fontSize: 19, fontWeight: 700 }}>
+          <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #bbb8", padding: 16 }}>
+            <h2 style={{ margin: "0 0 10px 0", color: "#111", fontSize: 19, fontWeight: 700 }}>
               Liste des projets
             </h2>
             <div style={{ overflowX: "auto" }}>
@@ -323,7 +322,7 @@ export default function HumanitarianProjectsPage() {
                     <tr
                       key={p.id}
                       style={{
-                        background: idx % 2 === 0 ? "#fafcff" : "#f1f7fc"
+                        background: idx % 2 === 0 ? "#fff" : "#ededed"
                       }}
                     >
                       <td style={tdStyle}>{p.name}</td>
@@ -350,6 +349,7 @@ export default function HumanitarianProjectsPage() {
   );
 }
 
+// Styles bien visibles
 const inputStyle: React.CSSProperties = {
   width: "100%",
   marginTop: 3,
@@ -357,9 +357,10 @@ const inputStyle: React.CSSProperties = {
   padding: "10px 11px",
   fontSize: 15,
   borderRadius: 8,
-  border: "1px solid #c4d5ec",
+  border: "1px solid #222",
   outline: "none",
-  background: "#f8fbfe"
+  background: "#fff",
+  color: "#111"
 };
 const tableStyle: React.CSSProperties = {
   width: "100%",
@@ -370,18 +371,19 @@ const tableStyle: React.CSSProperties = {
   overflow: "hidden",
   marginTop: 10,
   marginBottom: 20,
-  boxShadow: "0 2px 8px #135ba714"
+  boxShadow: "0 2px 8px #3332"
 };
 const thStyle: React.CSSProperties = {
   padding: "12px 7px",
-  background: "#e8f2fa",
-  color: "#12599e",
+  background: "#f1f1f1",
+  color: "#111",
   fontWeight: 700,
   textAlign: "center",
-  borderBottom: "2px solid #1976d2"
+  borderBottom: "2px solid #333"
 };
 const tdStyle: React.CSSProperties = {
   padding: "9px 7px",
-  borderBottom: "1px solid #f0f0f0",
-  textAlign: "center"
+  borderBottom: "1px solid #ddd",
+  textAlign: "center",
+  color: "#111"
 };
