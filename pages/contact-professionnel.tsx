@@ -88,22 +88,11 @@ export default function AdminProfessionalContactsPage() {
   e.preventDefault();
   setSuccess(false);
   setError("");
-  const payload = {
-    businessName: form.businessName,
-    businessType: form.businessType,
-    firstName: form.firstName,
-    lastName: form.lastName,
-    jobTitle: form.jobTitle,
-    phone: form.phone,
-    email: form.email,
-    address: form.address,
-    note: form.note,
-  };
   try {
     const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(mapFormToSQL(form)), // CORRECTION ICI
     });
     if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
     setSuccess(true);
@@ -117,6 +106,7 @@ export default function AdminProfessionalContactsPage() {
     }
   }
 };
+
 
 
   return (
