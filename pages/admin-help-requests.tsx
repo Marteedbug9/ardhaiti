@@ -2,31 +2,28 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar_adm";
 import Footer from "../components/Footer";
 
-// Onglets du dashboard admin
 const TABS = ["Client", "Request", "Register"];
 
-// ---- MODELES TYPES ----
+// --- Types alignés SQL
 interface Client {
-  [key: string]: unknown;
   id: number;
   sexe: string;
   status: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   address: string;
   city: string;
   state: string;
   zipcode: string;
-  yearOfBirth: string;
-  monthOfBirth: string;
-  dayOfBirth: string;
-  confirm: boolean;
+  year_of_birth: string;
+  month_of_birth?: string;
+  day_of_birth?: string;
+  is_confirmed: boolean;
 }
 
 interface HelpRequest {
-  [key: string]: unknown;
   id: number;
   user_id: number;
   user_name: string | null;
@@ -35,46 +32,42 @@ interface HelpRequest {
   city: string;
   service: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Register {
-  [key: string]: unknown;
   id?: number;
   sexe: string;
   status: string;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone: string;
   address: string;
   city: string;
   state: string;
   zipcode: string;
-  yearOfBirth: string;
-  monthOfBirth: string;
-  dayOfBirth: string;
-  confirm: boolean;
-  document: string;
+  year_of_birth: string;
+  month_of_birth?: string;
+  day_of_birth?: string;
+  is_confirmed: boolean;
+  document?: string;
 }
 
-// ---- INIT ÉTAT POUR AJOUT REGISTER ----
 const INIT_REGISTER: Register = {
   sexe: "",
   status: "Pending",
-  firstName: "",
-  lastName: "",
+  first_name: "",
+  last_name: "",
   email: "",
   phone: "",
   address: "",
   city: "",
   state: "",
   zipcode: "",
-  yearOfBirth: "",
-  monthOfBirth: "",
-  dayOfBirth: "",
-  confirm: false,
+  year_of_birth: "",
+  is_confirmed: false,
   document: "",
 };
 
@@ -102,7 +95,7 @@ export default function AdminDashboardPage() {
       const res = await fetch(`${API_URL}/api/admin/clients`);
       if (!res.ok) throw new Error("Erreur lors du chargement des clients");
       setClients(await res.json());
-    } catch (err: unknown) {
+    } catch {
       setClients([]);
     }
   };
@@ -112,7 +105,7 @@ export default function AdminDashboardPage() {
       const res = await fetch(`${API_URL}/api/admin/requests`);
       if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
       setRequests(await res.json());
-    } catch (err: unknown) {
+    } catch {
       setRequests([]);
     }
   };
@@ -122,27 +115,53 @@ export default function AdminDashboardPage() {
       const res = await fetch(`${API_URL}/api/admin/registers`);
       if (!res.ok) throw new Error("Erreur lors du chargement des registers");
       setRegisters(await res.json());
-    } catch (err: unknown) {
+    } catch {
       setRegisters([]);
     }
   };
 
-  // ---- Filtre
-  function filterData<T extends Record<string, unknown>>(list: T[], search: string): T[] {
-    if (!search) return list;
+  // --- FILTRES SANS any/unknown ---
+  function filterClients(clients: Client[], search: string): Client[] {
+    if (!search) return clients;
     const s = search.toLowerCase();
-    return list.filter(item =>
-      Object.values(item).some(
-        val => typeof val === "string" && val.toLowerCase().includes(s)
-      )
+    return clients.filter(c =>
+      [
+        c.sexe, c.status, c.first_name, c.last_name, c.email,
+        c.phone, c.address, c.city, c.state, c.zipcode, c.year_of_birth,
+        c.month_of_birth ?? "", c.day_of_birth ?? ""
+      ].some(field => (field || "").toLowerCase().includes(s))
     );
   }
 
-  // ---- Formulaire d'ajout register (admin → users)
+  function filterRequests(requests: HelpRequest[], search: string): HelpRequest[] {
+    if (!search) return requests;
+    const s = search.toLowerCase();
+    return requests.filter(r =>
+      [
+        r.user_name ?? "",
+        r.sexe, r.state, r.city, r.service, r.status,
+        r.created_at, r.updated_at
+      ].some(field => (field || "").toLowerCase().includes(s))
+    );
+  }
+
+  function filterRegisters(registers: Register[], search: string): Register[] {
+    if (!search) return registers;
+    const s = search.toLowerCase();
+    return registers.filter(r =>
+      [
+        r.sexe, r.status, r.first_name, r.last_name, r.email,
+        r.phone, r.address, r.city, r.state, r.zipcode, r.year_of_birth,
+        r.month_of_birth ?? "", r.day_of_birth ?? "", r.document ?? ""
+      ].some(field => (field || "").toLowerCase().includes(s))
+    );
+  }
+
+  // --- Formulaire d'ajout
   function renderRegisterForm() {
     return (
       <form
-        onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           setRegisterSuccess(false);
           setRegisterError("");
@@ -157,9 +176,8 @@ export default function AdminDashboardPage() {
             setRegisterForm(INIT_REGISTER);
             fetchRegisters();
             fetchClients();
-          } catch (err: unknown) {
-            if (err instanceof Error) setRegisterError(err.message || "Erreur inconnue");
-            else setRegisterError("Erreur inconnue");
+          } catch (err) {
+            setRegisterError((err instanceof Error ? err.message : "Erreur inconnue"));
           }
         }}
         style={{
@@ -172,6 +190,8 @@ export default function AdminDashboardPage() {
           boxShadow: "0 2px 8px #165b8315"
         }}
       >
+        {/* ... mêmes champs que dans ton formulaire, mais avec les bons noms */}
+        {/* first_name/last_name au lieu de firstName/lastName */}
         <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
             <label>Sexe *</label>
@@ -183,19 +203,21 @@ export default function AdminDashboardPage() {
           </div>
           <div style={{ flex: 1 }}>
             <label>Document</label>
-            <input name="document" value={registerForm.document} onChange={e => setRegisterForm(f => ({ ...f, document: e.target.value }))} style={inputStyle} />
+            <input name="document" value={registerForm.document ?? ""} onChange={e => setRegisterForm(f => ({ ...f, document: e.target.value }))} style={inputStyle} />
           </div>
         </div>
         <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
             <label>First Name *</label>
-            <input required name="firstName" value={registerForm.firstName} onChange={e => setRegisterForm(f => ({ ...f, firstName: e.target.value }))} style={inputStyle} />
+            <input required name="first_name" value={registerForm.first_name} onChange={e => setRegisterForm(f => ({ ...f, first_name: e.target.value }))} style={inputStyle} />
           </div>
           <div style={{ flex: 1 }}>
             <label>Last Name *</label>
-            <input required name="lastName" value={registerForm.lastName} onChange={e => setRegisterForm(f => ({ ...f, lastName: e.target.value }))} style={inputStyle} />
+            <input required name="last_name" value={registerForm.last_name} onChange={e => setRegisterForm(f => ({ ...f, last_name: e.target.value }))} style={inputStyle} />
           </div>
         </div>
+        {/* ...le reste, adapte les noms ! */}
+        {/* email, phone, address, etc. */}
         <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
             <label>Email *</label>
@@ -227,19 +249,19 @@ export default function AdminDashboardPage() {
         <div style={{ display: "flex", gap: 16, marginBottom: 8 }}>
           <div style={{ flex: 1 }}>
             <label>Year of Birth *</label>
-            <input required name="yearOfBirth" value={registerForm.yearOfBirth} onChange={e => setRegisterForm(f => ({ ...f, yearOfBirth: e.target.value }))} style={inputStyle} />
+            <input required name="year_of_birth" value={registerForm.year_of_birth} onChange={e => setRegisterForm(f => ({ ...f, year_of_birth: e.target.value }))} style={inputStyle} />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Month of Birth *</label>
-            <input required name="monthOfBirth" value={registerForm.monthOfBirth} onChange={e => setRegisterForm(f => ({ ...f, monthOfBirth: e.target.value }))} style={inputStyle} />
+            <label>Month of Birth</label>
+            <input name="month_of_birth" value={registerForm.month_of_birth ?? ""} onChange={e => setRegisterForm(f => ({ ...f, month_of_birth: e.target.value }))} style={inputStyle} />
           </div>
           <div style={{ flex: 1 }}>
-            <label>Day of Birth *</label>
-            <input required name="dayOfBirth" value={registerForm.dayOfBirth} onChange={e => setRegisterForm(f => ({ ...f, dayOfBirth: e.target.value }))} style={inputStyle} />
+            <label>Day of Birth</label>
+            <input name="day_of_birth" value={registerForm.day_of_birth ?? ""} onChange={e => setRegisterForm(f => ({ ...f, day_of_birth: e.target.value }))} style={inputStyle} />
           </div>
           <div style={{ flex: 1 }}>
             <label>Confirm *</label>
-            <select required name="confirm" value={registerForm.confirm ? "true" : "false"} onChange={e => setRegisterForm(f => ({ ...f, confirm: e.target.value === "true" }))} style={inputStyle}>
+            <select required name="is_confirmed" value={registerForm.is_confirmed ? "true" : "false"} onChange={e => setRegisterForm(f => ({ ...f, is_confirmed: e.target.value === "true" }))} style={inputStyle}>
               <option value="false">Non</option>
               <option value="true">Oui</option>
             </select>
@@ -275,9 +297,9 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // ---- Rendus des tableaux ----
+  // --- Tableau clients
   function renderClientTable() {
-    const list = filterData(clients, search);
+    const list = filterClients(clients, search);
     return (
       <table style={tableStyle}>
         <thead>
@@ -312,18 +334,18 @@ export default function AdminDashboardPage() {
                 onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
                 onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
               >
-                <td style={tdStyle}>{c.sexe as string}</td>
-                <td style={tdStyle}>{c.status as string}</td>
-                <td style={tdStyle}>{c.firstName as string}</td>
-                <td style={tdStyle}>{c.lastName as string}</td>
-                <td style={tdStyle}>{c.email as string}</td>
-                <td style={tdStyle}>{c.phone as string}</td>
-                <td style={tdStyle}>{c.address as string}</td>
-                <td style={tdStyle}>{c.city as string}</td>
-                <td style={tdStyle}>{c.state as string}</td>
-                <td style={tdStyle}>{c.zipcode as string}</td>
-                <td style={tdStyle}>{`${c.yearOfBirth as string}/${c.monthOfBirth as string}/${c.dayOfBirth as string}`}</td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>{c.confirm ? "✔️" : "❌"}</td>
+                <td style={tdStyle}>{c.sexe}</td>
+                <td style={tdStyle}>{c.status}</td>
+                <td style={tdStyle}>{c.first_name}</td>
+                <td style={tdStyle}>{c.last_name}</td>
+                <td style={tdStyle}>{c.email}</td>
+                <td style={tdStyle}>{c.phone}</td>
+                <td style={tdStyle}>{c.address}</td>
+                <td style={tdStyle}>{c.city}</td>
+                <td style={tdStyle}>{c.state}</td>
+                <td style={tdStyle}>{c.zipcode}</td>
+                <td style={tdStyle}>{`${c.year_of_birth}/${c.month_of_birth ?? ""}/${c.day_of_birth ?? ""}`}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
               </tr>
             ))
           )}
@@ -332,8 +354,9 @@ export default function AdminDashboardPage() {
     );
   }
 
+  // --- Tableau requests
   function renderRequestTable() {
-    const list = filterData(requests, search);
+    const list = filterRequests(requests, search);
     return (
       <table style={tableStyle}>
         <thead>
@@ -364,14 +387,14 @@ export default function AdminDashboardPage() {
                 onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
                 onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
               >
-                <td style={tdStyle}>{(r.user_name as string) || (r.user_id as number)}</td>
-                <td style={tdStyle}>{r.sexe as string}</td>
-                <td style={tdStyle}>{r.state as string}</td>
-                <td style={tdStyle}>{r.city as string}</td>
-                <td style={tdStyle}>{r.service as string}</td>
-                <td style={tdStyle}>{r.status as string}</td>
-                <td style={tdStyle}>{r.createdAt as string}</td>
-                <td style={tdStyle}>{r.updatedAt as string}</td>
+                <td style={tdStyle}>{r.user_name ?? r.user_id}</td>
+                <td style={tdStyle}>{r.sexe}</td>
+                <td style={tdStyle}>{r.state}</td>
+                <td style={tdStyle}>{r.city}</td>
+                <td style={tdStyle}>{r.service}</td>
+                <td style={tdStyle}>{r.status}</td>
+                <td style={tdStyle}>{r.created_at}</td>
+                <td style={tdStyle}>{r.updated_at}</td>
               </tr>
             ))
           )}
@@ -380,8 +403,9 @@ export default function AdminDashboardPage() {
     );
   }
 
+  // --- Tableau registers
   function renderRegisterTable() {
-    const list = filterData(registers, search);
+    const list = filterRegisters(registers, search);
     return (
       <table style={tableStyle}>
         <thead>
@@ -417,19 +441,19 @@ export default function AdminDashboardPage() {
                 onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
                 onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
               >
-                <td style={tdStyle}>{r.sexe as string}</td>
-                <td style={tdStyle}>{r.status as string}</td>
-                <td style={tdStyle}>{r.firstName as string}</td>
-                <td style={tdStyle}>{r.lastName as string}</td>
-                <td style={tdStyle}>{r.email as string}</td>
-                <td style={tdStyle}>{r.phone as string}</td>
-                <td style={tdStyle}>{r.address as string}</td>
-                <td style={tdStyle}>{r.city as string}</td>
-                <td style={tdStyle}>{r.state as string}</td>
-                <td style={tdStyle}>{r.zipcode as string}</td>
-                <td style={tdStyle}>{`${r.yearOfBirth as string}/${r.monthOfBirth as string}/${r.dayOfBirth as string}`}</td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>{r.confirm ? "✔️" : "❌"}</td>
-                <td style={tdStyle}>{r.document as string}</td>
+                <td style={tdStyle}>{r.sexe}</td>
+                <td style={tdStyle}>{r.status}</td>
+                <td style={tdStyle}>{r.first_name}</td>
+                <td style={tdStyle}>{r.last_name}</td>
+                <td style={tdStyle}>{r.email}</td>
+                <td style={tdStyle}>{r.phone}</td>
+                <td style={tdStyle}>{r.address}</td>
+                <td style={tdStyle}>{r.city}</td>
+                <td style={tdStyle}>{r.state}</td>
+                <td style={tdStyle}>{r.zipcode}</td>
+                <td style={tdStyle}>{`${r.year_of_birth}/${r.month_of_birth ?? ""}/${r.day_of_birth ?? ""}`}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}>{r.is_confirmed ? "✔️" : "❌"}</td>
+                <td style={tdStyle}>{r.document ?? ""}</td>
               </tr>
             ))
           )}
@@ -438,7 +462,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // ------ UI ------
+  // --- UI
   return (
     <>
       <Navbar />

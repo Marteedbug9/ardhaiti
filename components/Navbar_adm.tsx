@@ -8,34 +8,28 @@ export default function AdminNavbar() {
   const [logged, setLogged] = useState(false);
   const [role, setRole] = useState<string | null>(null);
 
-  // Vérifie à l'initialisation si connecté
+  // Vérifie connexion à l'initialisation
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setLogged(
-        !!localStorage.getItem("token") && localStorage.getItem("role") === "admin"
-      );
+      setLogged(!!localStorage.getItem("token"));
       setRole(localStorage.getItem("role"));
     }
   }, []);
 
-  // Rafraîchit quand le localStorage change (multi-onglets)
+  // Ecoute multi-onglets
   useEffect(() => {
     const onStorage = () => {
-      setLogged(
-        !!localStorage.getItem("token") && localStorage.getItem("role") === "admin"
-      );
+      setLogged(!!localStorage.getItem("token"));
       setRole(localStorage.getItem("role"));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Rafraîchit lors des changements de page (optionnel mais recommandé)
+  // Rafraîchit lors des changements de page
   useEffect(() => {
     const handleRouteChange = () => {
-      setLogged(
-        !!localStorage.getItem("token") && localStorage.getItem("role") === "admin"
-      );
+      setLogged(!!localStorage.getItem("token"));
       setRole(localStorage.getItem("role"));
     };
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -44,6 +38,7 @@ export default function AdminNavbar() {
 
   const isActive = (pathname: string) => router.pathname === pathname;
 
+  // DECONNEXION
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
@@ -51,7 +46,8 @@ export default function AdminNavbar() {
       localStorage.removeItem("role");
     }
     setLogged(false);
-    router.push("/login");
+    setRole(null);
+    router.push("/"); // ← Redirige sur la page d'accueil
   };
 
   return (

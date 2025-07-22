@@ -42,6 +42,19 @@ const INIT_STATE: ContactFormState = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Conversion camelCase => snake_case pour le POST
+const mapFormToSQL = (form: ContactFormState) => ({
+  business_name: form.businessName,
+  business_type: form.businessType,
+  first_name: form.firstName,
+  last_name: form.lastName,
+  job_title: form.jobTitle,
+  phone: form.phone,
+  email: form.email,
+  address: form.address,
+  note: form.note,
+});
+
 export default function AdminProfessionalContactsPage() {
   const [form, setForm] = useState<ContactFormState>(INIT_STATE);
   const [contacts, setContacts] = useState<ProContact[]>([]);
@@ -79,7 +92,7 @@ export default function AdminProfessionalContactsPage() {
       const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(mapFormToSQL(form))
       });
       if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
       setSuccess(true);
