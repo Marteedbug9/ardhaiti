@@ -111,19 +111,21 @@ export default function HumanitarianProjectsPage() {
     }
   };
 
-
   return (
     <>
       <Navbar />
       <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "46px 16px" }}>
           <h1 style={{
-            fontSize: "1.6rem", fontWeight: 700, color: "#1976d2",
-            marginBottom: 24, textAlign: "center"
+            fontSize: "2rem", fontWeight: 800, color: "#1976d2",
+            marginBottom: 28, textAlign: "center", letterSpacing: 1
           }}>
             Projets d’aide humanitaire
           </h1>
 
+          <h2 style={{ color: "#1976d2", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
+            Ajouter un nouveau projet
+          </h2>
           {/* FORMULAIRE */}
           <form
             onSubmit={handleSubmit}
@@ -173,7 +175,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Aide Humaine*</label>
+                <label>Aide Humaine *</label>
                 <input
                   required type="number" min={0}
                   name="workforceCount" value={form.workforceCount}
@@ -183,7 +185,7 @@ export default function HumanitarianProjectsPage() {
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label>Dépenses ($)*</label>
+                <label>Dépenses ($) *</label>
                 <input
                   required type="number" min={0}
                   name="expenses" value={form.expenses}
@@ -290,22 +292,24 @@ export default function HumanitarianProjectsPage() {
 
           {/* TABLEAU DES PROJETS */}
           <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
-            <h2 style={{ margin: "0 0 10px 0", color: "#1976d2", fontSize: 19 }}>Liste des projets</h2>
+            <h2 style={{ margin: "0 0 10px 0", color: "#1976d2", fontSize: 19, fontWeight: 700 }}>
+              Liste des projets
+            </h2>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 15 }}>
+              <table style={tableStyle}>
                 <thead>
-                  <tr style={{ background: "#e8f2fa" }}>
-                    <th>Nom</th>
-                    <th>Bénéficiaires</th>
-                    <th>Aide Humaine</th>
-                    <th>Dépenses ($)</th>
-                    <th>Type</th>
-                    <th>Statut</th>
-                    <th>Début</th>
-                    <th>Fin</th>
-                    <th>Description</th>
-                    <th>Notes</th>
-                    <th>Ajouté le</th>
+                  <tr>
+                    <th style={thStyle}>Nom</th>
+                    <th style={thStyle}>Bénéficiaires</th>
+                    <th style={thStyle}>Aide Humaine</th>
+                    <th style={thStyle}>Dépenses ($)</th>
+                    <th style={thStyle}>Type</th>
+                    <th style={thStyle}>Statut</th>
+                    <th style={thStyle}>Début</th>
+                    <th style={thStyle}>Fin</th>
+                    <th style={thStyle}>Description</th>
+                    <th style={thStyle}>Notes</th>
+                    <th style={thStyle}>Ajouté le</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -315,19 +319,24 @@ export default function HumanitarianProjectsPage() {
                         Aucun projet enregistré
                       </td>
                     </tr>
-                  ) : projects.map(p => (
-                    <tr key={p.id} style={{ background: "#fafcff" }}>
-                      <td>{p.name}</td>
-                      <td>{p.people_count}</td>
-                      <td>{p.workforce_count}</td>
-                      <td>{p.expenses}</td>
-                      <td>{p.beneficiary_type}</td>
-                      <td>{p.status}</td>
-                      <td>{new Date(p.start_date).toLocaleDateString()}</td>
-                      <td>{new Date(p.end_date).toLocaleDateString()}</td>
-                      <td>{p.description}</td>
-                      <td>{p.notes || "-"}</td>
-                      <td>{new Date(p.created_at).toLocaleDateString()}</td>
+                  ) : projects.map((p, idx) => (
+                    <tr
+                      key={p.id}
+                      style={{
+                        background: idx % 2 === 0 ? "#fafcff" : "#f1f7fc"
+                      }}
+                    >
+                      <td style={tdStyle}>{p.name}</td>
+                      <td style={tdStyle}>{p.people_count}</td>
+                      <td style={tdStyle}>{p.workforce_count}</td>
+                      <td style={tdStyle}>{p.expenses}</td>
+                      <td style={tdStyle}>{p.beneficiary_type}</td>
+                      <td style={tdStyle}>{p.status}</td>
+                      <td style={tdStyle}>{new Date(p.start_date).toLocaleDateString()}</td>
+                      <td style={tdStyle}>{new Date(p.end_date).toLocaleDateString()}</td>
+                      <td style={tdStyle}>{p.description}</td>
+                      <td style={tdStyle}>{p.notes || "-"}</td>
+                      <td style={tdStyle}>{new Date(p.created_at).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -351,4 +360,28 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #c4d5ec",
   outline: "none",
   background: "#f8fbfe"
+};
+const tableStyle: React.CSSProperties = {
+  width: "100%",
+  borderCollapse: "collapse",
+  fontSize: 15,
+  background: "#fff",
+  borderRadius: 10,
+  overflow: "hidden",
+  marginTop: 10,
+  marginBottom: 20,
+  boxShadow: "0 2px 8px #135ba714"
+};
+const thStyle: React.CSSProperties = {
+  padding: "12px 7px",
+  background: "#e8f2fa",
+  color: "#12599e",
+  fontWeight: 700,
+  textAlign: "center",
+  borderBottom: "2px solid #1976d2"
+};
+const tdStyle: React.CSSProperties = {
+  padding: "9px 7px",
+  borderBottom: "1px solid #f0f0f0",
+  textAlign: "center"
 };
