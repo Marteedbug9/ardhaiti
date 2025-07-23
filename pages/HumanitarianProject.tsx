@@ -92,7 +92,7 @@ export default function HumanitarianProjectsPage() {
     setSuccess(false);
     setError("");
     try {
-      const res = await fetch(`${API_URL}admin/humanitarian-projects`, {
+      const res = await fetch(`${API_URL}/admin/humanitarian-projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)

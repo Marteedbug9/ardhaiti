@@ -82,6 +82,10 @@ export default function AdminDashboardPage() {
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [registerError, setRegisterError] = useState("");
   const [search, setSearch] = useState("");
+  // Pour édition inline :
+  const [editing, setEditing] = useState<{ [id: number]: { [key: string]: boolean } }>({});
+  const [editValues, setEditValues] = useState<{ [id: number]: Partial<Client> }>({});
+  const [editError, setEditError] = useState("");
 
   useEffect(() => {
     fetchClients();
@@ -91,44 +95,52 @@ export default function AdminDashboardPage() {
   }, []);
 
   const fetchClients = async () => {
-  try {
-    // Utilise bien la route /users
-    const res = await fetch(`${API_URL}/admin/users`);
-    if (!res.ok) throw new Error("Erreur lors du chargement des clients");
-    const data = await res.json();
-    console.log("→ [CLIENTS]", data);
-    setClients(Array.isArray(data) ? data : []);
-  } catch (err) {
-    setClients([]);
-    console.error("[fetchClients] error:", err);
-  }
-};
+    try {
+      const res = await fetch(`${API_URL}/admin/users`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des clients");
+      const data = await res.json();
+      setClients(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setClients([]);
+      console.error("[fetchClients] error:", err);
+    }
+  };
 
-const fetchRequests = async () => {
-  try {
-    // Utilise bien la route /help-requests
-    const res = await fetch(`${API_URL}/admin/help-requests`);
-    if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
-    const data = await res.json();
-    console.log("→ [REQUESTS]", data);
-    setRequests(Array.isArray(data) ? data : []);
-  } catch (err) {
-    setRequests([]);
-    console.error("[fetchRequests] error:", err);
-  }
-};
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch(`${API_URL}/admin/help-requests`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
+      const data = await res.json();
+      setRequests(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setRequests([]);
+      console.error("[fetchRequests] error:", err);
+    }
+  };
 
-const fetchRegisters = async () => {
+  const fetchRegisters = async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/users`);
+      if (!res.ok) throw new Error("Erreur lors du chargement des registers");
+      const data = await res.json();
+      setRegisters(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setRegisters([]);
+      console.error("[fetchRegisters] error:", err);
+    }
+  };
+
+  // Suppression côté backend
+const handleDelete = async (id: number) => {
+  if (!window.confirm("Confirmer la suppression de ce client ?")) return;
   try {
-    // Cette route doit exister côté backend sinon tu peux utiliser fetchClients pour tout voir
-    const res = await fetch(`${API_URL}/api/admin/users`);
-    if (!res.ok) throw new Error("Erreur lors du chargement des registers");
-    const data = await res.json();
-    console.log("→ [REGISTERS]", data);
-    setRegisters(Array.isArray(data) ? data : []);
+    const res = await fetch(`${API_URL}/admin/users/${id}`, {
+      method: "DELETE"
+    });
+    if (!res.ok) throw new Error("Erreur lors de la suppression");
+    await fetchClients();
   } catch (err) {
-    setRegisters([]);
-    console.error("[fetchRegisters] error:", err);
+    alert("Erreur lors de la suppression !");
   }
 };
 
@@ -168,6 +180,70 @@ const fetchRegisters = async () => {
       ].some(field => (field || "").toLowerCase().includes(s))
     );
   }
+
+  // --- Inline edit logic (bouton Add partout) ---
+  const editableFields: (keyof Client)[] = [
+    "sexe", "status", "first_name", "last_name", "email", "phone", "address",
+    "city", "state", "zipcode", "year_of_birth", "month_of_birth", "day_of_birth"
+  ];
+  const fieldLabels: { [K in keyof Client]?: string } = {
+    sexe: "Sexe",
+    status: "Status",
+    first_name: "First Name",
+    last_name: "Last Name",
+    email: "Email",
+    phone: "Phone",
+    address: "Address",
+    city: "City",
+    state: "State",
+    zipcode: "Zipcode",
+    year_of_birth: "Birth Year",
+    month_of_birth: "Birth Month",
+    day_of_birth: "Birth Day"
+  };
+
+  const startEdit = (id: number, key: keyof Client, value: any) => {
+    setEditing(prev => ({
+      ...prev,
+      [id]: { ...(prev[id] || {}), [key]: true }
+    }));
+    setEditValues(prev => ({
+      ...prev,
+      [id]: { ...(prev[id] || {}), [key]: value }
+    }));
+  };
+
+  const cancelEdit = (id: number, key: keyof Client) => {
+    setEditing(prev => ({
+      ...prev,
+      [id]: { ...(prev[id] || {}), [key]: false }
+    }));
+    setEditValues(prev => ({
+      ...prev,
+      [id]: { ...(prev[id] || {}), [key]: undefined }
+    }));
+  };
+
+  const saveEdit = async (id: number, key: keyof Client) => {
+    setEditError("");
+    const value = editValues[id]?.[key];
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value })
+      });
+      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+      setEditing(prev => ({
+        ...prev,
+        [id]: { ...(prev[id] || {}), [key]: false }
+      }));
+      await fetchClients();
+    } catch (err) {
+      setEditError("Erreur lors de la sauvegarde");
+    }
+  };
+
 
   // --- Formulaire d'ajout
   function renderRegisterForm() {
@@ -425,60 +501,86 @@ const fetchRegisters = async () => {
 
   // --- Tableau clients
   function renderClientTable() {
-    const list = filterClients(clients, search);
-    return (
-      <table style={tableStyle}>
-        <thead>
-          <tr style={theadStyle}>
-            <th style={thStyle}>Sexe</th>
-            <th style={thStyle}>Status</th>
-            <th style={thStyle}>First Name</th>
-            <th style={thStyle}>Last Name</th>
-            <th style={thStyle}>Email</th>
-            <th style={thStyle}>Phone</th>
-            <th style={thStyle}>Address</th>
-            <th style={thStyle}>City</th>
-            <th style={thStyle}>State</th>
-            <th style={thStyle}>Zipcode</th>
-            <th style={thStyle}>Birth (Y/M/D)</th>
-            <th style={thStyle}>Confirm</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.length === 0 ? (
-            <tr>
-              <td colSpan={12} style={noResultStyle}>No results</td>
-            </tr>
-          ) : (
-            list.map((c, idx) => (
-              <tr
-                key={String(c.id)}
-                style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-              >
-                <td style={tdStyle}>{c.sexe}</td>
-                <td style={tdStyle}>{c.status}</td>
-                <td style={tdStyle}>{c.first_name}</td>
-                <td style={tdStyle}>{c.last_name}</td>
-                <td style={tdStyle}>{c.email}</td>
-                <td style={tdStyle}>{c.phone}</td>
-                <td style={tdStyle}>{c.address}</td>
-                <td style={tdStyle}>{c.city}</td>
-                <td style={tdStyle}>{c.state}</td>
-                <td style={tdStyle}>{c.zipcode}</td>
-                <td style={tdStyle}>{`${c.year_of_birth}/${c.month_of_birth ?? ""}/${c.day_of_birth ?? ""}`}</td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
-              </tr>
-            ))
+  const list = filterClients(clients, search);
+  return (
+    <table style={tableStyle}>
+      <thead>
+        <tr style={theadStyle}>
+          {editableFields.map(field =>
+            <th key={field} style={thStyle}>{fieldLabels[field] || field}</th>
           )}
-        </tbody>
-      </table>
-    );
-  }
+          <th style={thStyle}>Confirmé</th>
+          <th style={thStyle}>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr>
+            <td colSpan={editableFields.length + 2} style={noResultStyle}>No results</td>
+          </tr>
+        ) : (
+          list.map((c, idx) => (
+            <tr
+              key={String(c.id)}
+              style={{
+                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                transition: "background 0.2s"
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+            >
+              {editableFields.map(field => {
+                const key = field as keyof Client;
+                const value = editing?.[c.id]?.[key]
+                  ? editValues?.[c.id]?.[key]
+                  : c[key] ?? "";
+                return (
+                  <td key={field} style={{ ...tdStyle, color: "#111" }}>
+                    {editing?.[c.id]?.[key] ? (
+                      <>
+                        <input
+                          style={inputStyle}
+                          value={editValues[c.id]?.[key] === false ? "" : String(editValues[c.id]?.[key] ?? "")}
+                          onChange={e =>
+                            setEditValues(prev => ({
+                              ...prev,
+                              [c.id]: { ...(prev[c.id] || {}), [key]: e.target.value }
+                            }))
+                          }
+                        />
+                        <button onClick={() => saveEdit(c.id, key)} style={addBtnStyle}>✔️</button>
+                        <button onClick={() => cancelEdit(c.id, key)} style={cancelBtnStyle}>✖️</button>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ color: "#111" }}>{value ?? ""}</span>
+                        <button
+                          onClick={() => startEdit(c.id, key, c[key])}
+                          style={addBtnStyle}
+                        >Add</button>
+                      </>
+                    )}
+                  </td>
+                );
+              })}
+              <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
+              <td style={{ ...tdStyle }}>
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  style={deleteBtnStyle}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
+
+
 
   // --- Tableau requests
   function renderRequestTable() {
@@ -531,68 +633,92 @@ const fetchRegisters = async () => {
 
   // --- Tableau registers
   function renderRegisterTable() {
-    const list = filterRegisters(registers, search);
-    return (
-      <table style={tableStyle}>
-        <thead>
-          <tr style={theadStyle}>
-            <th style={thStyle}>Sexe</th>
-            <th style={thStyle}>Status</th>
-            <th style={thStyle}>First Name</th>
-            <th style={thStyle}>Last Name</th>
-            <th style={thStyle}>Email</th>
-            <th style={thStyle}>Phone</th>
-            <th style={thStyle}>Address</th>
-            <th style={thStyle}>City</th>
-            <th style={thStyle}>State</th>
-            <th style={thStyle}>Zipcode</th>
-            <th style={thStyle}>Birth (Y/M/D)</th>
-            <th style={thStyle}>Confirm</th>
-            <th style={thStyle}>Document</th>
+  const list = filterRegisters(registers, search);
+
+  // Fonction de suppression pour Register (à ajouter côté composant principal !)
+  const handleDeleteRegister = async (id?: number) => {
+    if (!id) return;
+    if (!window.confirm("Voulez-vous supprimer cet enregistrement ?")) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/registers/${id}`, {
+        method: "DELETE"
+      });
+      if (!res.ok) throw new Error("Erreur lors de la suppression");
+      await fetchRegisters();
+    } catch (err) {
+      alert("Erreur lors de la suppression !");
+    }
+  };
+
+  return (
+    <table style={tableStyle}>
+      <thead>
+        <tr style={theadStyle}>
+          <th style={thStyle}>Sexe</th>
+          <th style={thStyle}>Status</th>
+          <th style={thStyle}>First Name</th>
+          <th style={thStyle}>Last Name</th>
+          <th style={thStyle}>Email</th>
+          <th style={thStyle}>Phone</th>
+          <th style={thStyle}>Address</th>
+          <th style={thStyle}>City</th>
+          <th style={thStyle}>State</th>
+          <th style={thStyle}>Zipcode</th>
+          <th style={thStyle}>Birth (Y/M/D)</th>
+          <th style={thStyle}>Confirm</th>
+          <th style={thStyle}>Document</th>
+          <th style={thStyle}>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.length === 0 ? (
+          <tr>
+            <td colSpan={14} style={noResultStyle}>No results</td>
           </tr>
-        </thead>
-        <tbody>
-          {list.length === 0 ? (
-            <tr>
-              <td colSpan={13} style={noResultStyle}>No results</td>
+        ) : (
+          list.map((r, idx) => (
+            <tr
+              key={String(r.id)}
+              style={{
+                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                transition: "background 0.2s"
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+            >
+              <td style={tdStyle}>{r.sexe}</td>
+              <td style={tdStyle}>{r.status}</td>
+              <td style={tdStyle}>{r.first_name}</td>
+              <td style={tdStyle}>{r.last_name}</td>
+              <td style={tdStyle}>{r.email}</td>
+              <td style={tdStyle}>{r.phone}</td>
+              <td style={tdStyle}>{r.address}</td>
+              <td style={tdStyle}>{r.city}</td>
+              <td style={tdStyle}>{r.state}</td>
+              <td style={tdStyle}>{r.zipcode}</td>
+              <td style={tdStyle}>{`${r.year_of_birth}/${r.month_of_birth ?? ""}/${r.day_of_birth ?? ""}`}</td>
+              <td style={{ ...tdStyle, textAlign: "center" }}>{r.is_confirmed ? "✔️" : "❌"}</td>
+              <td style={tdStyle}>{r.document ?? ""}</td>
+              <td style={tdStyle}>
+                <button
+                  style={deleteBtnStyle}
+                  onClick={() => handleDeleteRegister(r.id)}
+                >Delete</button>
+              </td>
             </tr>
-          ) : (
-            list.map((r, idx) => (
-              <tr
-                key={String(r.id)}
-                style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                  transition: "background 0.2s"
-                }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-              >
-                <td style={tdStyle}>{r.sexe}</td>
-                <td style={tdStyle}>{r.status}</td>
-                <td style={tdStyle}>{r.first_name}</td>
-                <td style={tdStyle}>{r.last_name}</td>
-                <td style={tdStyle}>{r.email}</td>
-                <td style={tdStyle}>{r.phone}</td>
-                <td style={tdStyle}>{r.address}</td>
-                <td style={tdStyle}>{r.city}</td>
-                <td style={tdStyle}>{r.state}</td>
-                <td style={tdStyle}>{r.zipcode}</td>
-                <td style={tdStyle}>{`${r.year_of_birth}/${r.month_of_birth ?? ""}/${r.day_of_birth ?? ""}`}</td>
-                <td style={{ ...tdStyle, textAlign: "center" }}>{r.is_confirmed ? "✔️" : "❌"}</td>
-                <td style={tdStyle}>{r.document ?? ""}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    );
-  }
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+}
+
 
   // --- UI
   return (
     <>
       <Navbar />
-      <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
+        <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
         <div style={{ maxWidth: 1000, margin: "0 auto", padding: "44px 12px" }}>
           <h1 style={{ fontSize: "1.7rem", fontWeight: 700, marginBottom: 18, color: "#145a7e" }}>Admin Dashboard</h1>
           <div style={{ marginBottom: 20 }}>
@@ -623,6 +749,11 @@ const fetchRegisters = async () => {
               }}
             />
           </div>
+          {editError && (
+            <div style={{ color: "#c72525", fontWeight: 600, background: "#ffeded", borderRadius: 7, padding: 12, marginBottom: 12, textAlign: "center", fontSize: 15 }}>
+              {editError}
+            </div>
+          )}
           <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
             {tab === "Client" && renderClientTable()}
             {tab === "Request" && renderRequestTable()}
@@ -639,18 +770,46 @@ const fetchRegisters = async () => {
     </>
   );
 }
-
 // --- Styles partagés ---
 const inputStyle: React.CSSProperties = {
-  width: "100%",
-  marginTop: 3,
-  marginBottom: 0,
-  padding: "10px 11px",
+  width: "90%",
+  padding: "8px 8px",
   fontSize: 15,
-  borderRadius: 8,
-  border: "1px solid #c4d5ec",
+  borderRadius: 6,
+  border: "1px solid #b5c5e0",
   outline: "none",
-  background: "#f8fbfe"
+  background: "#f8fbfe",
+  marginRight: 6
+};
+const addBtnStyle: React.CSSProperties = {
+  marginLeft: 4,
+  background: "#0a293d",
+  color: "#fff",
+  border: "none",
+  borderRadius: 4,
+  padding: "2px 9px",
+  fontWeight: 600,
+  cursor: "pointer"
+};
+const cancelBtnStyle: React.CSSProperties = {
+  marginLeft: 4,
+  background: "#e91c1c",
+  color: "#fff",
+  border: "none",
+  borderRadius: 4,
+  padding: "2px 8px",
+  fontWeight: 600,
+  cursor: "pointer"
+};
+const deleteBtnStyle: React.CSSProperties = {
+  marginLeft: 2,
+  background: "#d93240",
+  color: "#fff",
+  border: "none",
+  borderRadius: 4,
+  padding: "3px 13px",
+  fontWeight: 600,
+  cursor: "pointer"
 };
 const tableStyle: React.CSSProperties = {
   width: "100%",
@@ -665,4 +824,3 @@ const theadStyle: React.CSSProperties = { background: "#1671b8", color: "#fff" }
 const thStyle: React.CSSProperties = { padding: 10 };
 const tdStyle: React.CSSProperties = { padding: 8 };
 const noResultStyle: React.CSSProperties = { textAlign: "center", color: "#888", background: "#f3f7fa", padding: 16 };
-

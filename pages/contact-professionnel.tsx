@@ -42,7 +42,7 @@ const INIT_STATE: ContactFormState = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// Conversion camelCase => snake_case pour le POST
+// Conversion camelCase => snake_case pour le POST/PUT
 const mapFormToSQL = (form: ContactFormState) => ({
   business_name: form.businessName,
   business_type: form.businessType,
@@ -55,12 +55,27 @@ const mapFormToSQL = (form: ContactFormState) => ({
   note: form.note,
 });
 
+// Conversion SQL => camelCase pour le formulaire d’édition
+const mapSQLToForm = (contact: ProContact): ContactFormState => ({
+  businessName: contact.business_name,
+  businessType: contact.business_type,
+  firstName: contact.first_name,
+  lastName: contact.last_name,
+  jobTitle: contact.job_title,
+  phone: contact.phone,
+  email: contact.email,
+  address: contact.address,
+  note: contact.note || "",
+});
+
 export default function AdminProfessionalContactsPage() {
   const [form, setForm] = useState<ContactFormState>(INIT_STATE);
   const [contacts, setContacts] = useState<ProContact[]>([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [editId, setEditId] = useState<number | null>(null); // Pour édition
 
+  // Récupération
   const fetchContacts = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/admin/professional-contacts`);
@@ -68,11 +83,7 @@ export default function AdminProfessionalContactsPage() {
       const data: ProContact[] = await res.json();
       setContacts(data);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erreur inconnue lors du chargement");
-      }
+      setError(err instanceof Error ? err.message : "Erreur inconnue lors du chargement");
     }
   }, []);
 
@@ -80,34 +91,66 @@ export default function AdminProfessionalContactsPage() {
     fetchContacts();
   }, [fetchContacts]);
 
+  // Saisie
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // Ajout ou édition selon editId
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setSuccess(false);
-  setError("");
-  try {
-    const res = await fetch(`${API_URL}/admin/professional-contacts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mapFormToSQL(form)), // CORRECTION ICI
-    });
-    if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-    setSuccess(true);
-    setForm(INIT_STATE);
-    fetchContacts();
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      setError(err.message);
-    } else {
-      setError("Erreur inconnue");
+    e.preventDefault();
+    setSuccess(false);
+    setError("");
+    const method = editId ? "PUT" : "POST";
+    const url = editId
+      ? `${API_URL}/admin/professional-contacts/${editId}`
+      : `${API_URL}/admin/professional-contacts`;
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mapFormToSQL(form)),
+      });
+      if (!res.ok) throw new Error(editId ? "Erreur lors de la modification" : "Erreur lors de l'enregistrement");
+      setSuccess(true);
+      setForm(INIT_STATE);
+      setEditId(null);
+      fetchContacts();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
     }
-  }
-};
+  };
 
+  // Éditer un contact
+  const startEdit = (contact: ProContact) => {
+    setForm(mapSQLToForm(contact));
+    setEditId(contact.id);
+    setSuccess(false);
+    setError("");
+  };
 
+  // Supprimer
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Voulez-vous vraiment supprimer ce contact ?")) return;
+    setSuccess(false);
+    setError("");
+    try {
+      const res = await fetch(`${API_URL}/admin/professional-contacts/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Erreur lors de la suppression");
+      fetchContacts();
+      setSuccess(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur inconnue");
+    }
+  };
+
+  // Annuler édition
+  const cancelEdit = () => {
+    setEditId(null);
+    setForm(INIT_STATE);
+    setError("");
+    setSuccess(false);
+  };
 
   return (
     <>
@@ -220,33 +263,46 @@ export default function AdminProfessionalContactsPage() {
               />
             </div>
 
-            <button
-              type="submit"
-              style={{
-                background: "#1976d2",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 17,
-                border: "none",
-                borderRadius: 8,
-                padding: "12px 0",
-                marginTop: 10,
-                boxShadow: "0 2px 8px #135ba733",
-                cursor: "pointer",
-                transition: "background .15s"
-              }}
-              onMouseOver={e => (e.currentTarget.style.background = "#12599e")}
-              onMouseOut={e => (e.currentTarget.style.background = "#1976d2")}
-            >
-              Enregistrer
-            </button>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                type="submit"
+                style={{
+                  background: "#1976d2",
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: 17,
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "12px 0",
+                  marginTop: 10,
+                  boxShadow: "0 2px 8px #135ba733",
+                  cursor: "pointer",
+                  transition: "background .15s",
+                  minWidth: 120,
+                }}
+                onMouseOver={e => (e.currentTarget.style.background = "#12599e")}
+                onMouseOut={e => (e.currentTarget.style.background = "#1976d2")}
+              >
+                {editId ? "Modifier" : "Enregistrer"}
+              </button>
+              {editId && (
+                <button
+                  type="button"
+                  style={{
+                    background: "#c72525", color: "#fff", fontWeight: 600, borderRadius: 8, border: "none",
+                    padding: "12px 0", marginTop: 10, minWidth: 120, cursor: "pointer"
+                  }}
+                  onClick={cancelEdit}
+                >Annuler</button>
+              )}
+            </div>
 
             {success && (
               <div style={{
                 color: "#259621", fontWeight: 600, background: "#edffec",
                 borderRadius: 7, padding: 12, marginTop: 6, textAlign: "center", fontSize: 15
               }}>
-                Enregistré avec succès !
+                {editId ? "Modifié avec succès !" : "Enregistré avec succès !"}
               </div>
             )}
             {error && (
@@ -276,12 +332,13 @@ export default function AdminProfessionalContactsPage() {
                     <th>Adresse</th>
                     <th>Note</th>
                     <th>Ajouté le</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {contacts.length === 0 ? (
                     <tr>
-                      <td colSpan={10} style={{ textAlign: "center", color: "#888" }}>
+                      <td colSpan={11} style={{ textAlign: "center", color: "#888" }}>
                         Aucun contact enregistré
                       </td>
                     </tr>
@@ -297,6 +354,22 @@ export default function AdminProfessionalContactsPage() {
                       <td>{c.address}</td>
                       <td>{c.note || "-"}</td>
                       <td>{new Date(c.created_at).toLocaleDateString()}</td>
+                      <td>
+                        <button
+                          style={{
+                            background: "#1976d2", color: "#fff", border: "none", borderRadius: 7,
+                            padding: "5px 14px", marginRight: 5, cursor: "pointer"
+                          }}
+                          onClick={() => startEdit(c)}
+                        >Éditer</button>
+                        <button
+                          style={{
+                            background: "#c72525", color: "#fff", border: "none", borderRadius: 7,
+                            padding: "5px 14px", cursor: "pointer"
+                          }}
+                          onClick={() => handleDelete(c.id)}
+                        >Supprimer</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
