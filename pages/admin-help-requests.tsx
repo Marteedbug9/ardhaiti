@@ -202,16 +202,17 @@ const handleDelete = async (id: number) => {
     day_of_birth: "Birth Day"
   };
 
-  const startEdit = (id: number, key: keyof Client, value: any) => {
-    setEditing(prev => ({
-      ...prev,
-      [id]: { ...(prev[id] || {}), [key]: true }
-    }));
-    setEditValues(prev => ({
-      ...prev,
-      [id]: { ...(prev[id] || {}), [key]: value }
-    }));
-  };
+  const startEdit = <K extends keyof Client>(id: number, key: K, value: Client[K]) => {
+  setEditing(prev => ({
+    ...prev,
+    [id]: { ...(prev[id] || {}), [key]: true }
+  }));
+  setEditValues(prev => ({
+    ...prev,
+    [id]: { ...(prev[id] || {}), [key]: value }
+  }));
+};
+
 
   const cancelEdit = (id: number, key: keyof Client) => {
     setEditing(prev => ({
