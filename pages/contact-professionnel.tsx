@@ -63,7 +63,7 @@ export default function AdminProfessionalContactsPage() {
 
   const fetchContacts = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/admin/professional-contacts`);
+      const res = await fetch(`${API_URL}/admin/professional-contacts`);
       if (!res.ok) throw new Error("Erreur lors du chargement des contacts");
       const data: ProContact[] = await res.json();
       setContacts(data);
@@ -89,7 +89,7 @@ export default function AdminProfessionalContactsPage() {
   setSuccess(false);
   setError("");
   try {
-    const res = await fetch(`${API_URL}/api/admin/professional-contacts`, {
+    const res = await fetch(`${API_URL}/admin/professional-contacts`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(mapFormToSQL(form)), // CORRECTION ICI

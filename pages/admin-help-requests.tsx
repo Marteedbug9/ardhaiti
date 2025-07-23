@@ -93,7 +93,7 @@ export default function AdminDashboardPage() {
   const fetchClients = async () => {
   try {
     // Utilise bien la route /users
-    const res = await fetch(`${API_URL}/api/admin/users`);
+    const res = await fetch(`${API_URL}/admin/users`);
     if (!res.ok) throw new Error("Erreur lors du chargement des clients");
     const data = await res.json();
     console.log("→ [CLIENTS]", data);
@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
 const fetchRequests = async () => {
   try {
     // Utilise bien la route /help-requests
-    const res = await fetch(`${API_URL}/api/admin/help-requests`);
+    const res = await fetch(`${API_URL}/admin/help-requests`);
     if (!res.ok) throw new Error("Erreur lors du chargement des demandes");
     const data = await res.json();
     console.log("→ [REQUESTS]", data);
@@ -178,7 +178,7 @@ const fetchRegisters = async () => {
         setRegisterSuccess(false);
         setRegisterError("");
         try {
-          const res = await fetch(`${API_URL}/api/admin/registers`, {
+          const res = await fetch(`${API_URL}/admin/registers`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(registerForm)
