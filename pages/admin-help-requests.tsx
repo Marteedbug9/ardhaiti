@@ -504,92 +504,104 @@ const handleDelete = async (id: number) => {
   function renderClientTable() {
   const list = filterClients(clients, search);
   return (
-    <table style={tableStyle}>
-      <thead>
-        <tr style={theadStyle}>
-          {editableFields.map(field =>
-            <th key={field} style={thStyle}>{fieldLabels[field] || field}</th>
-          )}
-          <th style={thStyle}>Confirmé</th>
-          <th style={thStyle}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {list.length === 0 ? (
-          <tr>
-            <td colSpan={editableFields.length + 2} style={noResultStyle}>No results</td>
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ ...tableStyle, background: "#e3f3fd" }}>
+        <thead>
+          <tr style={{ ...theadStyle, background: "#135ba7" }}>
+            {editableFields.map(field =>
+              <th key={field} style={thStyle}>{fieldLabels[field] || field}</th>
+            )}
+            <th style={thStyle}>Confirmé</th>
+            <th style={thStyle}>Action</th>
           </tr>
-        ) : (
-          list.map((c, idx) => (
-            <tr
-              key={String(c.id)}
-              style={{
-                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-            >
-              {editableFields.map(field => {
-                const key = field as keyof Client;
-                const value = editing?.[c.id]?.[key]
-                  ? editValues?.[c.id]?.[key]
-                  : c[key] ?? "";
-                return (
-                  <td key={field} style={{ ...tdStyle, color: "#111" }}>
-                    {editing?.[c.id]?.[key] ? (
-                      <>
-                        <input
-                          style={inputStyle}
-                          value={editValues[c.id]?.[key] === false ? "" : String(editValues[c.id]?.[key] ?? "")}
-                          onChange={e =>
-                            setEditValues(prev => ({
-                              ...prev,
-                              [c.id]: { ...(prev[c.id] || {}), [key]: e.target.value }
-                            }))
-                          }
-                        />
-                        <button onClick={() => saveEdit(c.id, key)} style={addBtnStyle}>✔️</button>
-                        <button onClick={() => cancelEdit(c.id, key)} style={cancelBtnStyle}>✖️</button>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ color: "#111" }}>{value ?? ""}</span>
-                        <button
-                          onClick={() => startEdit(c.id, key, c[key])}
-                          style={addBtnStyle}
-                        >Add</button>
-                      </>
-                    )}
-                  </td>
-                );
-              })}
-              <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
-              <td style={{ ...tdStyle }}>
-                <button
-                  onClick={() => handleDelete(c.id)}
-                  style={deleteBtnStyle}
-                >
-                  Delete
-                </button>
-              </td>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr>
+              <td colSpan={editableFields.length + 2} style={noResultStyle}>No results</td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+          ) : (
+            list.map((c, idx) => (
+              <tr
+                key={String(c.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#fafdff" : "#cdf2fc",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#c7ffc7")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fafdff" : "#cdf2fc")}
+              >
+                {editableFields.map(field => {
+                  const key = field as keyof Client;
+                  const value = editing?.[c.id]?.[key]
+                    ? editValues?.[c.id]?.[key]
+                    : c[key] ?? "";
+                  return (
+                    <td key={field} style={{ ...tdStyle, color: "#111" }}>
+                      {editing?.[c.id]?.[key] ? (
+                        <>
+                          <input
+                            style={inputStyle}
+                            value={editValues[c.id]?.[key] === false ? "" : String(editValues[c.id]?.[key] ?? "")}
+                            onChange={e =>
+                              setEditValues(prev => ({
+                                ...prev,
+                                [c.id]: { ...(prev[c.id] || {}), [key]: e.target.value }
+                              }))
+                            }
+                          />
+                          {/* Unique bouton Sauvegarder */}
+                          <button onClick={() => saveEdit(c.id, key)} style={addBtnStyle}>✔️</button>
+                        </>
+                      ) : (
+                        <>
+                          {/* Affichage inline ou vide */}
+                          <span style={{ color: "#111" }}>{value ?? ""}</span>
+                          <button
+                            onClick={() => startEdit(c.id, key, c[key])}
+                            style={{ ...addBtnStyle, marginLeft: 6 }}
+                          >🖉</button>
+                        </>
+                      )}
+                    </td>
+                  );
+                })}
+                <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
+                <td style={tdStyle}></td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
 
+// --- Tableau requests
+function renderRequestTable() {
+  const list = filterRequests(requests, search);
 
-  // --- Tableau requests
-  function renderRequestTable() {
-    const list = filterRequests(requests, search);
-    return (
-      <table style={tableStyle}>
+  // Pour sauvegarder une modification de status
+  const saveStatus = async (id: number, value: string) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/help-requests/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: value })
+      });
+      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+      await fetchRequests();
+    } catch {
+      alert("Erreur lors de la sauvegarde du status");
+    }
+  };
+
+  return (
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ ...tableStyle, background: "#fff7e5" }}>
         <thead>
-          <tr style={theadStyle}>
+          <tr style={{ ...theadStyle, background: "#f39c12" }}>
             <th style={thStyle}>User</th>
             <th style={thStyle}>Sexe</th>
             <th style={thStyle}>State</th>
@@ -610,18 +622,28 @@ const handleDelete = async (id: number) => {
               <tr
                 key={String(r.id)}
                 style={{
-                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  background: idx % 2 === 0 ? "#fffbe5" : "#f9e4b7",
                   transition: "background 0.2s"
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+                onMouseEnter={e => (e.currentTarget.style.background = "#ffe08a")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fffbe5" : "#f9e4b7")}
               >
                 <td style={tdStyle}>{r.user_name ?? r.user_id}</td>
                 <td style={tdStyle}>{r.sexe}</td>
                 <td style={tdStyle}>{r.state}</td>
                 <td style={tdStyle}>{r.city}</td>
                 <td style={tdStyle}>{r.service}</td>
-                <td style={tdStyle}>{r.status}</td>
+                <td style={tdStyle}>
+                  <select
+                    value={r.status}
+                    style={{ ...inputStyle, width: "90%" }}
+                    onChange={e => saveStatus(r.id, e.target.value)}
+                  >
+                    <option value="traitement">Traitement</option>
+                    <option value="terminer">Terminer</option>
+                    <option value="peut etre modifier">Peut être modifier</option>
+                  </select>
+                </td>
                 <td style={tdStyle}>{r.created_at}</td>
                 <td style={tdStyle}>{r.updated_at}</td>
               </tr>
@@ -629,11 +651,13 @@ const handleDelete = async (id: number) => {
           )}
         </tbody>
       </table>
-    );
-  }
+    </div>
+  );
+}
 
-  // --- Tableau registers
-  function renderRegisterTable() {
+
+// --- Tableau registers
+function renderRegisterTable() {
   const list = filterRegisters(registers, search);
 
   // Fonction de suppression pour Register (à ajouter côté composant principal !)
@@ -652,65 +676,67 @@ const handleDelete = async (id: number) => {
   };
 
   return (
-    <table style={tableStyle}>
-      <thead>
-        <tr style={theadStyle}>
-          <th style={thStyle}>Sexe</th>
-          <th style={thStyle}>Status</th>
-          <th style={thStyle}>First Name</th>
-          <th style={thStyle}>Last Name</th>
-          <th style={thStyle}>Email</th>
-          <th style={thStyle}>Phone</th>
-          <th style={thStyle}>Address</th>
-          <th style={thStyle}>City</th>
-          <th style={thStyle}>State</th>
-          <th style={thStyle}>Zipcode</th>
-          <th style={thStyle}>Birth (Y/M/D)</th>
-          <th style={thStyle}>Confirm</th>
-          <th style={thStyle}>Document</th>
-          <th style={thStyle}>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {list.length === 0 ? (
-          <tr>
-            <td colSpan={14} style={noResultStyle}>No results</td>
+    <div style={{ overflowX: "auto" }}>
+      <table style={tableStyle}>
+        <thead>
+          <tr style={{ ...theadStyle, background: "#111", color: "#fff" }}>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Sexe</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Status</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>First Name</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Last Name</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Email</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Phone</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Address</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>City</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>State</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Zipcode</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Birth (Y/M/D)</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Confirm</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Document</th>
+            <th style={{ ...thStyle, color: "#111", background: "#f2f2f2" }}>Action</th>
           </tr>
-        ) : (
-          list.map((r, idx) => (
-            <tr
-              key={String(r.id)}
-              style={{
-                background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
-                transition: "background 0.2s"
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
-              onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
-            >
-              <td style={tdStyle}>{r.sexe}</td>
-              <td style={tdStyle}>{r.status}</td>
-              <td style={tdStyle}>{r.first_name}</td>
-              <td style={tdStyle}>{r.last_name}</td>
-              <td style={tdStyle}>{r.email}</td>
-              <td style={tdStyle}>{r.phone}</td>
-              <td style={tdStyle}>{r.address}</td>
-              <td style={tdStyle}>{r.city}</td>
-              <td style={tdStyle}>{r.state}</td>
-              <td style={tdStyle}>{r.zipcode}</td>
-              <td style={tdStyle}>{`${r.year_of_birth}/${r.month_of_birth ?? ""}/${r.day_of_birth ?? ""}`}</td>
-              <td style={{ ...tdStyle, textAlign: "center" }}>{r.is_confirmed ? "✔️" : "❌"}</td>
-              <td style={tdStyle}>{r.document ?? ""}</td>
-              <td style={tdStyle}>
-                <button
-                  style={deleteBtnStyle}
-                  onClick={() => handleDeleteRegister(r.id)}
-                >Delete</button>
-              </td>
+        </thead>
+        <tbody>
+          {list.length === 0 ? (
+            <tr>
+              <td colSpan={14} style={noResultStyle}>No results</td>
             </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+          ) : (
+            list.map((r, idx) => (
+              <tr
+                key={String(r.id)}
+                style={{
+                  background: idx % 2 === 0 ? "#f7faff" : "#eaf3ff",
+                  transition: "background 0.2s"
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#d3ecff")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#f7faff" : "#eaf3ff")}
+              >
+                <td style={tdStyle}>{r.sexe}</td>
+                <td style={tdStyle}>{r.status}</td>
+                <td style={tdStyle}>{r.first_name}</td>
+                <td style={tdStyle}>{r.last_name}</td>
+                <td style={tdStyle}>{r.email}</td>
+                <td style={tdStyle}>{r.phone}</td>
+                <td style={tdStyle}>{r.address}</td>
+                <td style={tdStyle}>{r.city}</td>
+                <td style={tdStyle}>{r.state}</td>
+                <td style={tdStyle}>{r.zipcode}</td>
+                <td style={tdStyle}>{`${r.year_of_birth}/${r.month_of_birth ?? ""}/${r.day_of_birth ?? ""}`}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}>{r.is_confirmed ? "✔️" : "❌"}</td>
+                <td style={tdStyle}>{r.document ?? ""}</td>
+                <td style={tdStyle}>
+                  <button
+                    style={deleteBtnStyle}
+                    onClick={() => handleDeleteRegister(r.id)}
+                  >Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
