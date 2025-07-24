@@ -53,7 +53,7 @@ export default function HumanitarianProjectsPage() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/admin/humanitarian-projects`);
+      const res = await fetch(`${API_URL}/admin/humanitarian-projects`);
       if (!res.ok) throw new Error("Erreur lors du chargement des projets");
       const data: HumanitarianProject[] = await res.json();
       setProjects(data);
