@@ -558,7 +558,7 @@ const handleDelete = async (id: number) => {
               <tr
                 key={String(c.id)}
                 style={{
-                  background: idx % 2 === 0 ? "#fafdff" : "#cdf2fc",
+                  background: idx % 2 === 0 ? "#1b1c1dff" : "#87d1e5ff",
                   transition: "background 0.2s"
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = "#c7ffc7")}
