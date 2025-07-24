@@ -15,84 +15,72 @@ export default function Contact() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setSubmitted(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSubmitted(false);
 
-  // Validation simple avant envoi
-  if (
-    !form.firstName.trim() ||
-    !form.lastName.trim() ||
-    !form.email.trim() ||
-    !form.subject.trim() ||
-    !form.message.trim()
-  ) {
-    setError('All fields are required.');
-    return;
-  }
-  if (!form.email.includes('@')) {
-    setError('A valid email is required.');
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const res = await fetch(`${API_URL}/contact`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    });
-    if (res.ok) {
-      setSubmitted(true);
-      setForm({
-        firstName: '',
-        lastName: '',
-        email: '',
-        subject: '',
-        message: ''
-      });
-    } else {
-      const data = await res.json();
-      setError(data.error || 'An error occurred. Please try again.');
+    if (
+      !form.firstName.trim() ||
+      !form.lastName.trim() ||
+      !form.email.trim() ||
+      !form.subject.trim() ||
+      !form.message.trim()
+    ) {
+      setError('All fields are required.');
+      return;
     }
-  } catch (err) {
-    setError('Network error. Please try again later.');
-  }
-  setLoading(false);
-};
+    if (!form.email.includes('@')) {
+      setError('A valid email is required.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        setForm({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        const data = await res.json();
+        setError(data.error || 'An error occurred. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please try again later.');
+    }
+    setLoading(false);
+  };
 
   return (
     <>
       <Navbar />
       <main style={{ background: "#f7fafc", minHeight: "100vh" }}>
-        <div style={{ maxWidth: 560, margin: "0 auto", padding: "48px 8px 40px 8px", color: "#145a7e" }}>
-          <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 8 }}>Get Involved</h1>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 600, marginBottom: 6 }}>Donate • Contact</h2>
-          <p style={{ margin: "10px 0 18px 0", color: "#11466a", fontSize: "1.08rem" }}>
+        <div className="contact-container">
+          <h1 className="contact-title">Get Involved</h1>
+          <h2 className="contact-subtitle">Donate • Contact</h2>
+          <p className="contact-intro">
             Join the conversation. We want to hear from you.<br />
             Please fill out this form and we will respond shortly.
           </p>
 
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              boxShadow: "0 4px 18px #145a7e16",
-              padding: "24px 22px",
-              marginBottom: 24
-            }}>
-            <div style={{ display: "flex", gap: 12 }}>
-              <div style={{ flex: 1 }}>
-                <label htmlFor="firstName" style={{ fontWeight: 600, display: "block" }}>
-                  First Name<span style={{ color: "#e64b1d" }}>*</span>
+          <form onSubmit={handleSubmit} className="contact-form">
+            <div className="contact-row">
+              <div className="contact-col">
+                <label htmlFor="firstName">
+                  First Name<span className="contact-required">*</span>
                 </label>
                 <input
                   required
@@ -101,19 +89,12 @@ export default function Contact() {
                   id="firstName"
                   value={form.firstName}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: 8,
-                    border: "1px solid #c1d4ea",
-                    marginBottom: 16,
-                    marginTop: 3
-                  }}
+                  className="contact-input"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label htmlFor="lastName" style={{ fontWeight: 600, display: "block" }}>
-                  Last Name<span style={{ color: "#e64b1d" }}>*</span>
+              <div className="contact-col">
+                <label htmlFor="lastName">
+                  Last Name<span className="contact-required">*</span>
                 </label>
                 <input
                   required
@@ -122,19 +103,12 @@ export default function Contact() {
                   id="lastName"
                   value={form.lastName}
                   onChange={handleChange}
-                  style={{
-                    width: "100%",
-                    padding: "8px",
-                    borderRadius: 8,
-                    border: "1px solid #c1d4ea",
-                    marginBottom: 16,
-                    marginTop: 3
-                  }}
+                  className="contact-input"
                 />
               </div>
             </div>
-            <label htmlFor="email" style={{ fontWeight: 600, display: "block" }}>
-              Email Address<span style={{ color: "#e64b1d" }}>*</span>
+            <label htmlFor="email">
+              Email Address<span className="contact-required">*</span>
             </label>
             <input
               required
@@ -143,18 +117,10 @@ export default function Contact() {
               id="email"
               value={form.email}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "8px",
-                borderRadius: 8,
-                border: "1px solid #c1d4ea",
-                marginBottom: 16,
-                marginTop: 3
-              }}
+              className="contact-input"
             />
-
-            <label htmlFor="subject" style={{ fontWeight: 600, display: "block" }}>
-              Subject<span style={{ color: "#e64b1d" }}>*</span>
+            <label htmlFor="subject">
+              Subject<span className="contact-required">*</span>
             </label>
             <input
               required
@@ -163,18 +129,10 @@ export default function Contact() {
               id="subject"
               value={form.subject}
               onChange={handleChange}
-              style={{
-                width: "100%",
-                padding: "8px",
-                borderRadius: 8,
-                border: "1px solid #c1d4ea",
-                marginBottom: 16,
-                marginTop: 3
-              }}
+              className="contact-input"
             />
-
-            <label htmlFor="message" style={{ fontWeight: 600, display: "block" }}>
-              Message<span style={{ color: "#e64b1d" }}>*</span>
+            <label htmlFor="message">
+              Message<span className="contact-required">*</span>
             </label>
             <textarea
               required
@@ -183,57 +141,146 @@ export default function Contact() {
               value={form.message}
               onChange={handleChange}
               rows={5}
-              style={{
-                width: "100%",
-                padding: "8px",
-                borderRadius: 8,
-                border: "1px solid #c1d4ea",
-                marginBottom: 18,
-                marginTop: 3,
-                resize: "vertical"
-              }}
+              className="contact-input"
+              style={{ resize: "vertical" }}
             />
 
             <button
               type="submit"
               disabled={loading}
-              style={{
-                width: "100%",
-                background: loading ? "#e3e3e3" : "#145a7e",
-                color: loading ? "#aaa" : "#fff",
-                fontWeight: 600,
-                border: "none",
-                borderRadius: 8,
-                padding: "12px 0",
-                fontSize: "1.1rem",
-                marginTop: 6,
-                cursor: loading ? "not-allowed" : "pointer",
-                transition: "background 0.15s"
-              }}>
+              className="contact-btn"
+            >
               {loading ? "Sending..." : "Submit"}
             </button>
 
             {error && (
-              <div style={{ marginTop: 14, color: "#d32f2f", fontWeight: 600 }}>
+              <div className="contact-error">
                 {error}
               </div>
             )}
             {submitted && (
-              <div style={{ marginTop: 15, color: "#118c47", fontWeight: 600 }}>
+              <div className="contact-success">
                 Thank you! Your message has been sent.
               </div>
             )}
           </form>
 
-          <div style={{ background: "#e8f2fa", borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontWeight: 600, fontSize: "1.12rem", marginBottom: 6 }}>Other Ways to Get in Touch</div>
+          <div className="contact-alt">
+            <div className="contact-alt-title">Other Ways to Get in Touch</div>
             <div>
-              Call us at <a href="tel:3307431196" style={{ color: "#145a7e", textDecoration: "underline" }}>614-930-2727</a> or email us at <a href="mailto:contact@ardhaiti.com" style={{ color: "#145a7e", textDecoration: "underline" }}>contact@ardhaiti.com</a>.
+              Call us at <a href="tel:3307431196">614-930-2727</a> or email us at <a href="mailto:contact@ardhaiti.com">contact@ardhaiti.com</a>.
             </div>
           </div>
         </div>
       </main>
       <Footer />
+      <style jsx>{`
+        .contact-container {
+          max-width: 560px;
+          margin: 0 auto;
+          padding: 48px 8px 40px 8px;
+          color: #145a7e;
+        }
+        .contact-title {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+        .contact-subtitle {
+          font-size: 1.35rem;
+          font-weight: 600;
+          margin-bottom: 6px;
+        }
+        .contact-intro {
+          margin: 10px 0 18px 0;
+          color: #11466a;
+          font-size: 1.08rem;
+        }
+        .contact-form {
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 4px 18px #145a7e16;
+          padding: 24px 22px;
+          margin-bottom: 24px;
+        }
+        .contact-row {
+          display: flex;
+          gap: 12px;
+        }
+        .contact-col {
+          flex: 1;
+        }
+        label {
+          font-weight: 600;
+          display: block;
+          margin-bottom: 3px;
+        }
+        .contact-required {
+          color: #e64b1d;
+          margin-left: 2px;
+        }
+        .contact-input {
+          width: 100%;
+          padding: 8px;
+          border-radius: 8px;
+          border: 1px solid #c1d4ea;
+          margin-bottom: 16px;
+          margin-top: 3px;
+        }
+        .contact-btn {
+          width: 100%;
+          background: #145a7e;
+          color: #fff;
+          font-weight: 600;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 0;
+          font-size: 1.1rem;
+          margin-top: 6px;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .contact-btn[disabled] {
+          background: #e3e3e3 !important;
+          color: #aaa !important;
+          cursor: not-allowed;
+        }
+        .contact-error {
+          margin-top: 14px;
+          color: #d32f2f;
+          font-weight: 600;
+        }
+        .contact-success {
+          margin-top: 15px;
+          color: #118c47;
+          font-weight: 600;
+        }
+        .contact-alt {
+          background: #e8f2fa;
+          border-radius: 12px;
+          padding: 14px 18px;
+        }
+        .contact-alt-title {
+          font-weight: 600;
+          font-size: 1.12rem;
+          margin-bottom: 6px;
+        }
+        .contact-alt a {
+          color: #145a7e;
+          text-decoration: underline;
+        }
+
+        /* RESPONSIVE ADAPTATIONS */
+        @media (max-width: 700px) {
+          .contact-container { max-width: 99vw; padding: 22px 2vw 20px 2vw; }
+          .contact-title { font-size: 1.3rem; }
+          .contact-row { flex-direction: column; gap: 5px; }
+        }
+        @media (max-width: 430px) {
+          .contact-form { padding: 12px 2vw; }
+          .contact-title { font-size: 1.07rem; }
+        }
+      `}</style>
     </>
   );
 }

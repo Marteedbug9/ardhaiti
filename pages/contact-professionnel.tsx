@@ -178,76 +178,76 @@ export default function AdminProfessionalContactsPage() {
               gap: 16
             }}
           >
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
+            <div className="form-row">
+              <div>
                 <label>Business Name *</label>
                 <input
                   required name="businessName" value={form.businessName} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Nom de l'entreprise"
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div>
                 <label>Type of Business *</label>
                 <input
                   required name="businessType" value={form.businessType} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Type (SAS, LLC, Service...)"
                 />
               </div>
             </div>
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
+            <div className="form-row">
+              <div>
                 <label>First Name *</label>
                 <input
                   required name="firstName" value={form.firstName} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Votre prénom"
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div>
                 <label>Last Name *</label>
                 <input
                   required name="lastName" value={form.lastName} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Votre nom"
                 />
               </div>
             </div>
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
+            <div className="form-row">
+              <div>
                 <label>Position/Job Title *</label>
                 <input
                   required name="jobTitle" value={form.jobTitle} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Directeur, RH, etc."
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div>
                 <label>Phone *</label>
                 <input
                   required name="phone" value={form.phone} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Téléphone"
                   type="tel"
                 />
               </div>
             </div>
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
+            <div className="form-row">
+              <div>
                 <label>Email *</label>
                 <input
                   required name="email" value={form.email} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Email"
                   type="email"
                 />
               </div>
-              <div style={{ flex: 1 }}>
+              <div>
                 <label>Address *</label>
                 <input
                   required name="address" value={form.address} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Adresse professionnelle"
                 />
               </div>
@@ -258,12 +258,13 @@ export default function AdminProfessionalContactsPage() {
                 name="note"
                 value={form.note}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 80, resize: "vertical" }}
+                className="soft-input"
+                style={{ minHeight: 80, resize: "vertical" }}
                 placeholder="Votre message, une demande, un commentaire…"
               />
             </div>
 
-            <div style={{ display: "flex", gap: 12 }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               <button
                 type="submit"
                 style={{
@@ -319,7 +320,7 @@ export default function AdminProfessionalContactsPage() {
           <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #165b8310", padding: 16 }}>
             <h2 style={{ margin: "0 0 10px 0", color: "#1976d2", fontSize: 19 }}>Contacts enregistrés</h2>
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 15 }}>
+              <table className="soft-table">
                 <thead>
                   <tr style={{ background: "#e8f2fa" }}>
                     <th>Entreprise</th>
@@ -382,15 +383,3 @@ export default function AdminProfessionalContactsPage() {
     </>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  marginTop: 3,
-  marginBottom: 0,
-  padding: "10px 11px",
-  fontSize: 15,
-  borderRadius: 8,
-  border: "1px solid #c4d5ec",
-  outline: "none",
-  background: "#f8fbfe"
-};

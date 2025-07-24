@@ -64,7 +64,7 @@ export default function HumanitarianProjectsPage() {
         setError("Erreur inconnue lors du chargement");
       }
     }
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     fetchProjects();
@@ -77,12 +77,12 @@ export default function HumanitarianProjectsPage() {
     if (numberFields.includes(name)) {
       setForm((f) => ({
         ...f,
-        [name]: value === "" ? "" : Number(value)
+        [name]: value === "" ? "" : Number(value),
       }));
     } else {
       setForm((f) => ({
         ...f,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -95,7 +95,7 @@ export default function HumanitarianProjectsPage() {
       const res = await fetch(`${API_URL}/admin/humanitarian-projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
       setSuccess(true);
@@ -113,46 +113,26 @@ export default function HumanitarianProjectsPage() {
   return (
     <>
       <Navbar />
-      <main style={{ background: "#f7fafc", minHeight: "100vh", color: "#111" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "46px 16px" }}>
-          <h1 style={{
-            fontSize: "2rem", fontWeight: 800, color: "#135ba733",
-            marginBottom: 28, textAlign: "center", letterSpacing: 1
-          }}>
-            Projets d’aide humanitaire
-          </h1>
+      <main className="admin-page-bg">
+        <div className="admin-container">
+          <h1 className="soft-card-title">Projets d’aide humanitaire</h1>
 
-          <h2 style={{ color: "#135ba733", fontSize: 18, marginBottom: 8, fontWeight: 700 }}>
-            Ajouter un nouveau projet
-          </h2>
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              background: "#fff",
-              borderRadius: 14,
-              boxShadow: "0 4px 18px #aaa2",
-              padding: 30,
-              marginBottom: 40,
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              color: "#111"
-            }}
-          >
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 2 }}>
-                <label style={{ color: "#135ba733" }}>Nom du projet *</label>
+          <h2 className="soft-section-title">Ajouter un nouveau projet</h2>
+          <form onSubmit={handleSubmit} className="soft-card" style={{ gap: 16, display: "flex", flexDirection: "column" }}>
+            <div className="form-row">
+              <div>
+                <label>Nom du projet *</label>
                 <input
                   required name="name" value={form.name} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Ex: Aide alimentaire Juillet 2025"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Statut *</label>
+              <div>
+                <label>Statut *</label>
                 <select
                   required name="status" value={form.status} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                 >
                   <option value="">-- Sélectionner --</option>
                   <option value="En cours">En cours</option>
@@ -162,45 +142,45 @@ export default function HumanitarianProjectsPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Personnes aidées *</label>
+            <div className="form-row">
+              <div>
+                <label>Personnes aidées *</label>
                 <input
                   required type="number" min={0}
                   name="peopleCount" value={form.peopleCount}
                   onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Ex: 500"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Aide Humaine *</label>
+              <div>
+                <label>Aide Humaine *</label>
                 <input
                   required type="number" min={0}
                   name="workforceCount" value={form.workforceCount}
                   onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Nombre de bénévoles/travailleurs"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Dépenses ($) *</label>
+              <div>
+                <label>Dépenses ($) *</label>
                 <input
                   required type="number" min={0}
                   name="expenses" value={form.expenses}
                   onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                   placeholder="Montant total"
                 />
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Type de bénéficiaire *</label>
+            <div className="form-row">
+              <div>
+                <label>Type de bénéficiaire *</label>
                 <select
                   required name="beneficiaryType" value={form.beneficiaryType} onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                 >
                   <option value="">-- Sélectionner --</option>
                   <option value="Enfants">Enfants</option>
@@ -211,104 +191,77 @@ export default function HumanitarianProjectsPage() {
                   <option value="Autre">Autre</option>
                 </select>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Date de début *</label>
+              <div>
+                <label>Date de début *</label>
                 <input
                   required name="startDate" type="date" value={form.startDate}
                   onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                 />
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ color: "#135ba733" }}>Date de fin *</label>
+              <div>
+                <label>Date de fin *</label>
                 <input
                   required name="endDate" type="date" value={form.endDate}
                   onChange={handleChange}
-                  style={inputStyle}
+                  className="soft-input"
                 />
               </div>
             </div>
+
             <div>
-              <label style={{ color: "#135ba733" }}>Description *</label>
+              <label>Description *</label>
               <textarea
                 required
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 60, resize: "vertical", color: "#111" }}
+                className="soft-input"
+                style={{ minHeight: 60, resize: "vertical" }}
                 placeholder="Brève description du projet, objectifs, modalités, etc."
               />
             </div>
             <div>
-              <label style={{ color: "#135ba733" }}>Notes</label>
+              <label>Notes</label>
               <textarea
                 name="notes"
                 value={form.notes}
                 onChange={handleChange}
-                style={{ ...inputStyle, minHeight: 40, resize: "vertical", color: "#135ba733" }}
+                className="soft-input"
+                style={{ minHeight: 40, resize: "vertical" }}
                 placeholder="Notes additionnelles"
               />
             </div>
 
-            <button
-              type="submit"
-              style={{
-                background: "#111",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 17,
-                border: "none",
-                borderRadius: 8,
-                padding: "12px 0",
-                marginTop: 10,
-                boxShadow: "0 2px 8px #3335",
-                cursor: "pointer",
-                transition: "background .15s"
-              }}
-              onMouseOver={e => (e.currentTarget.style.background = "#333")}
-              onMouseOut={e => (e.currentTarget.style.background = "#111")}
-            >
+            <button type="submit" className="soft-btn" style={{ marginTop: 10, minWidth: 120 }}>
               Enregistrer
             </button>
 
             {success && (
-              <div style={{
-                color: "#259621", fontWeight: 600, background: "#edffec",
-                borderRadius: 7, padding: 12, marginTop: 6, textAlign: "center", fontSize: 15
-              }}>
-                Projet enregistré !
-              </div>
+              <div className="soft-success">Projet enregistré !</div>
             )}
             {error && (
-              <div style={{
-                color: "#c72525", fontWeight: 600, background: "#ffeded",
-                borderRadius: 7, padding: 12, marginTop: 6, textAlign: "center", fontSize: 15
-              }}>
-                {error}
-              </div>
+              <div className="soft-error">{error}</div>
             )}
           </form>
 
-          {/* TABLEAU DES PROJETS */}
-          <div style={{ background: "#fff", borderRadius: 13, boxShadow: "0 4px 12px #bbb8", padding: 16 }}>
-            <h2 style={{ margin: "0 0 10px 0", color: "#111", fontSize: 19, fontWeight: 700 }}>
-              Liste des projets
-            </h2>
-            <div style={{ overflowX: "auto" }}>
-              <table style={tableStyle}>
+          <div className="soft-card">
+            <h2 className="soft-section-title">Liste des projets</h2>
+            <div className="soft-table-responsive">
+              <table className="soft-table responsive-table">
                 <thead>
                   <tr>
-                    <th style={thStyle}>Nom</th>
-                    <th style={thStyle}>Bénéficiaires</th>
-                    <th style={thStyle}>Aide Humaine</th>
-                    <th style={thStyle}>Dépenses ($)</th>
-                    <th style={thStyle}>Type</th>
-                    <th style={thStyle}>Statut</th>
-                    <th style={thStyle}>Début</th>
-                    <th style={thStyle}>Fin</th>
-                    <th style={thStyle}>Description</th>
-                    <th style={thStyle}>Notes</th>
-                    <th style={thStyle}>Ajouté le</th>
+                    <th>Nom</th>
+                    <th>Bénéficiaires</th>
+                    <th>Aide Humaine</th>
+                    <th>Dépenses ($)</th>
+                    <th>Type</th>
+                    <th>Statut</th>
+                    <th>Début</th>
+                    <th>Fin</th>
+                    <th>Description</th>
+                    <th>Notes</th>
+                    <th>Ajouté le</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -319,23 +272,18 @@ export default function HumanitarianProjectsPage() {
                       </td>
                     </tr>
                   ) : projects.map((p, idx) => (
-                    <tr
-                      key={p.id}
-                      style={{
-                        background: idx % 2 === 0 ? "#fff" : "#ededed"
-                      }}
-                    >
-                      <td style={tdStyle}>{p.name}</td>
-                      <td style={tdStyle}>{p.people_count}</td>
-                      <td style={tdStyle}>{p.workforce_count}</td>
-                      <td style={tdStyle}>{p.expenses}</td>
-                      <td style={tdStyle}>{p.beneficiary_type}</td>
-                      <td style={tdStyle}>{p.status}</td>
-                      <td style={tdStyle}>{new Date(p.start_date).toLocaleDateString()}</td>
-                      <td style={tdStyle}>{new Date(p.end_date).toLocaleDateString()}</td>
-                      <td style={tdStyle}>{p.description}</td>
-                      <td style={tdStyle}>{p.notes || "-"}</td>
-                      <td style={tdStyle}>{new Date(p.created_at).toLocaleDateString()}</td>
+                    <tr key={p.id}>
+                      <td>{p.name}</td>
+                      <td>{p.people_count}</td>
+                      <td>{p.workforce_count}</td>
+                      <td>{p.expenses}</td>
+                      <td>{p.beneficiary_type}</td>
+                      <td>{p.status}</td>
+                      <td>{new Date(p.start_date).toLocaleDateString()}</td>
+                      <td>{new Date(p.end_date).toLocaleDateString()}</td>
+                      <td>{p.description}</td>
+                      <td>{p.notes || "-"}</td>
+                      <td>{new Date(p.created_at).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -348,42 +296,3 @@ export default function HumanitarianProjectsPage() {
     </>
   );
 }
-
-// Styles bien visibles
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  marginTop: 3,
-  marginBottom: 0,
-  padding: "10px 11px",
-  fontSize: 15,
-  borderRadius: 8,
-  border: "1px solid #222",
-  outline: "none",
-  background: "#fff",
-  color: "#111"
-};
-const tableStyle: React.CSSProperties = {
-  width: "100%",
-  borderCollapse: "collapse",
-  fontSize: 15,
-  background: "#fff",
-  borderRadius: 10,
-  overflow: "hidden",
-  marginTop: 10,
-  marginBottom: 20,
-  boxShadow: "0 2px 8px #3332"
-};
-const thStyle: React.CSSProperties = {
-  padding: "12px 7px",
-  background: "#f1f1f1",
-  color: "#111",
-  fontWeight: 700,
-  textAlign: "center",
-  borderBottom: "2px solid #333"
-};
-const tdStyle: React.CSSProperties = {
-  padding: "9px 7px",
-  borderBottom: "1px solid #ddd",
-  textAlign: "center",
-  color: "#111"
-};

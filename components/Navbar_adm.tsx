@@ -112,7 +112,8 @@ export default function AdminNavbar() {
         </Link>
       </div>
       <div>
-        {logged ? (
+        {/* UNIQUEMENT le bouton Déconnexion si connecté */}
+        {logged && (
           <button
             onClick={handleLogout}
             style={{
@@ -129,24 +130,8 @@ export default function AdminNavbar() {
           >
             Déconnexion
           </button>
-        ) : (
-          <Link href="/login" legacyBehavior>
-            <a
-              style={{
-                background: "#145a7e",
-                color: "#fff",
-                fontWeight: 600,
-                border: "none",
-                borderRadius: 8,
-                padding: "8px 20px",
-                fontSize: 15,
-                boxShadow: "0 2px 8px #145a7e22",
-              }}
-            >
-              Se connecter
-            </a>
-          </Link>
         )}
+        {/* Sinon, RIEN */}
       </div>
     </nav>
   );
