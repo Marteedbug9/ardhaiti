@@ -86,6 +86,9 @@ export default function AdminDashboardPage() {
   const [editing, setEditing] = useState<{ [id: number]: { [key: string]: boolean } }>({});
   const [editValues, setEditValues] = useState<{ [id: number]: Partial<Client> }>({});
   const [editError, setEditError] = useState("");
+  const [editId, setEditId] = useState<number | null>(null); // id du client en édition
+  const [editForm, setEditForm] = useState<Partial<Client>>({});
+
 
   useEffect(() => {
     fetchClients();
@@ -503,6 +506,36 @@ const handleDelete = async (id: number) => {
   // --- Tableau clients
   function renderClientTable() {
   const list = filterClients(clients, search);
+
+  // Commence édition : charge toutes les valeurs du client dans editForm
+  const startEditRow = (client: Client) => {
+    setEditId(client.id);
+    setEditForm({ ...client });
+  };
+
+  // Annule édition
+  const cancelEditRow = () => {
+    setEditId(null);
+    setEditForm({});
+  };
+
+  // Sauvegarde édition
+  const saveEditRow = async (id: number) => {
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm)
+      });
+      if (!res.ok) throw new Error("Erreur lors de la sauvegarde");
+      setEditId(null);
+      setEditForm({});
+      await fetchClients();
+    } catch {
+      alert("Erreur lors de la sauvegarde !");
+    }
+  };
+
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ ...tableStyle, background: "#e3f3fd" }}>
@@ -512,7 +545,7 @@ const handleDelete = async (id: number) => {
               <th key={field} style={thStyle}>{fieldLabels[field] || field}</th>
             )}
             <th style={thStyle}>Confirmé</th>
-            <th style={thStyle}>Action</th>
+            <th style={thStyle}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -531,43 +564,75 @@ const handleDelete = async (id: number) => {
                 onMouseEnter={e => (e.currentTarget.style.background = "#c7ffc7")}
                 onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fafdff" : "#cdf2fc")}
               >
-                {editableFields.map(field => {
-                  const key = field as keyof Client;
-                  const value = editing?.[c.id]?.[key]
-                    ? editValues?.[c.id]?.[key]
-                    : c[key] ?? "";
-                  return (
-                    <td key={field} style={{ ...tdStyle, color: "#111" }}>
-                      {editing?.[c.id]?.[key] ? (
-                        <>
-                          <input
-                            style={inputStyle}
-                            value={editValues[c.id]?.[key] === false ? "" : String(editValues[c.id]?.[key] ?? "")}
-                            onChange={e =>
-                              setEditValues(prev => ({
-                                ...prev,
-                                [c.id]: { ...(prev[c.id] || {}), [key]: e.target.value }
-                              }))
-                            }
-                          />
-                          {/* Unique bouton Sauvegarder */}
-                          <button onClick={() => saveEdit(c.id, key)} style={addBtnStyle}>✔️</button>
-                        </>
-                      ) : (
-                        <>
-                          {/* Affichage inline ou vide */}
-                          <span style={{ color: "#111" }}>{value ?? ""}</span>
-                          <button
-                            onClick={() => startEdit(c.id, key, c[key])}
-                            style={{ ...addBtnStyle, marginLeft: 6 }}
-                          >🖉</button>
-                        </>
-                      )}
+                {editId === c.id ? (
+                  // Mode édition (tous les champs inline)
+                  <>
+                    {editableFields.map(field => (
+                      <td key={field} style={tdStyle}>
+                        <input
+                          style={inputStyle}
+                          value={typeof editForm[field] === "boolean"
+                          ? editForm[field] ? "true" : "false"
+                          : editForm[field] ?? ""}
+
+                          onChange={e =>
+                            setEditForm(prev => ({
+                              ...prev,
+                              [field]: e.target.value
+                            }))
+                          }
+                        />
+                      </td>
+                    ))}
+                    <td style={{ ...tdStyle, textAlign: "center" }}>
+                      <select
+                        value={editForm.is_confirmed ? "true" : "false"}
+                        onChange={e =>
+                          setEditForm(prev => ({
+                            ...prev,
+                            is_confirmed: e.target.value === "true"
+                          }))
+                        }
+                        style={inputStyle}
+                      >
+                        <option value="false">❌</option>
+                        <option value="true">✔️</option>
+                      </select>
                     </td>
-                  );
-                })}
-                <td style={{ ...tdStyle, textAlign: "center" }}>{c.is_confirmed ? "✔️" : "❌"}</td>
-                <td style={tdStyle}></td>
+                    <td style={tdStyle}>
+                      <button
+                        style={addBtnStyle}
+                        onClick={() => saveEditRow(c.id)}
+                      >✔️</button>
+                      <button
+                        style={cancelBtnStyle}
+                        onClick={cancelEditRow}
+                      >✖️</button>
+                    </td>
+                  </>
+                ) : (
+                  // Affichage standard
+                  <>
+                    {editableFields.map(field => (
+                      <td key={field} style={tdStyle}>
+                        {c[field] ?? ""}
+                      </td>
+                    ))}
+                    <td style={{ ...tdStyle, textAlign: "center" }}>
+                      {c.is_confirmed ? "✔️" : "❌"}
+                    </td>
+                    <td style={tdStyle}>
+                      <button
+                        style={{ ...addBtnStyle, marginRight: 6 }}
+                        onClick={() => startEditRow(c)}
+                      >Éditer</button>
+                      <button
+                        style={deleteBtnStyle}
+                        onClick={() => handleDelete(c.id)}
+                      >Supprimer</button>
+                    </td>
+                  </>
+                )}
               </tr>
             ))
           )}
