@@ -561,7 +561,7 @@ const handleDelete = async (id: number) => {
                   background: idx % 2 === 0 ? "#1b1c1dff" : "#87d1e5ff",
                   transition: "background 0.2s"
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#c7ffc7")}
+                onMouseEnter={e => (e.currentTarget.style.background = "#1b1c1dff")}
                 onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fafdff" : "#cdf2fc")}
               >
                 {editId === c.id ? (
@@ -687,11 +687,11 @@ function renderRequestTable() {
               <tr
                 key={String(r.id)}
                 style={{
-                  background: idx % 2 === 0 ? "#fffbe5" : "#f9e4b7",
+                  background: idx % 2 === 0 ? "#fffbe5" : "#135ba7",
                   transition: "background 0.2s"
                 }}
                 onMouseEnter={e => (e.currentTarget.style.background = "#ffe08a")}
-                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fffbe5" : "#f9e4b7")}
+                onMouseLeave={e => (e.currentTarget.style.background = idx % 2 === 0 ? "#fffbe5" : "#135ba7")}
               >
                 <td style={tdStyle}>{r.user_name ?? r.user_id}</td>
                 <td style={tdStyle}>{r.sexe}</td>
